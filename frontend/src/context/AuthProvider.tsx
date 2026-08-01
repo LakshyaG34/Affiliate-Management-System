@@ -4,6 +4,7 @@ import AuthContext from "./AuthContext";
 import api from "@/services/api";
 
 import type { User } from "@/types/auth.types";
+import { authService } from "@/services/auth.service";
 
 interface Props {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await api.get("/auth/me");
+      const res = await authService.getCurrentUser();
 
       setUser(res.data.data);
     } catch {
@@ -35,7 +36,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
+      await authService.logout();
     } finally {
       setUser(null);
     }
