@@ -1,19 +1,17 @@
 import express from "express";
-import prisma from "@/lib/prisma";
+import authRoutes from "@/routes/auth.routes";
+import notFoundMiddleware from "@/middleware/notFound.middleware";
+import errorMiddleware from "@/middleware/error.middleware";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.get("/", async (_req, res) => {
-  const users = await prisma.user.findMany();
+app.use("/api/auth", authRoutes);
+app.use(notFoundMiddleware);
+app.use(errorMiddleware);
 
-  res.json(users);
-});
-
-
-
-const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
