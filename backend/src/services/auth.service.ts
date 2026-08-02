@@ -7,12 +7,14 @@ interface RegisterUserInput {
   name: string;
   email: string;
   password: string;
+  referralCode?: string;
 }
 
 export const registerUser = async ({
   name,
   email,
   password,
+  referralCode,
 }: RegisterUserInput) => {
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -24,18 +26,34 @@ export const registerUser = async ({
     throw new ApiError(409, "Email already exists");
   }
 
+  let referrerId: string | undefined;
+
+  if (referralCode) {
+    const referrer = await prisma.user.findUnique({
+      where: {
+        referralCode,
+      },
+    });
+
+    if (!referrer) {
+      throw new ApiError(400, "Invalid referral code");
+    }
+
+    referrerId = referrer.id;
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  let referralCode = generateReferralCode();
+  let generatedReferralCode = generateReferralCode();
 
   while (
     await prisma.user.findUnique({
       where: {
-        referralCode,
+        referralCode: generatedReferralCode,
       },
     })
   ) {
-    referralCode = generateReferralCode();
+    generatedReferralCode = generateReferralCode();
   }
 
   const user = await prisma.user.create({
@@ -43,7 +61,8 @@ export const registerUser = async ({
       name,
       email,
       password: hashedPassword,
-      referralCode,
+      referralCode: generatedReferralCode,
+      referredById: referrerId,
     },
   });
 
