@@ -11,6 +11,7 @@ import MyProfile from "./pages/MyProfile";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import Layout from "@/components/Layout";
+import Purchase from "./pages/Purchase";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/my-profile" element={<MyProfile />} />
+            <Route path="/purchase" element={<Purchase />} />
           </Route>
 
           {/* Default */}

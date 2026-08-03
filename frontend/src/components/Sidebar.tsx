@@ -16,6 +16,7 @@ const Sidebar = () => {
 
   const navItems: NavItem[] = [
     { path: "/dashboard", label: "Dashboard" },
+    { path: "/purchase", label: "Purchase" },
     { path: "/referrals", label: "Referrals" },
     { path: "/commissions", label: "Commissions" },
     { path: "/payouts", label: "Payouts" },

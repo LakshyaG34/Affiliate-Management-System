@@ -13,6 +13,20 @@ interface RegisterData {
   password: string;
 }
 
+export interface Purchase {
+  id: string;
+  purchaseAmount: number;
+  status: "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CreatePurchaseData {
+  purchaseAmount: number;
+}
+
+
 interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -31,4 +45,9 @@ export const authService = {
 
   getCurrentUser: () =>
     api.get<ApiResponse<User>>("/auth/me"),
+};
+
+export const purchaseService = {
+  createPurchase: (data: CreatePurchaseData) =>
+    api.post<ApiResponse<Purchase>>("/purchases", data),
 };
