@@ -1,13 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-
 import useAuth from "@/hooks/useAuth";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     await logout();
     navigate("/login");
   };
@@ -22,46 +20,6 @@ const Navbar = () => {
         >
           AffiliateMS
         </Link>
-
-        {/* Navigation */}
-        <div className="flex items-center gap-8">
-          <Link
-            to="/dashboard"
-            className="font-medium text-gray-700 transition hover:text-blue-600"
-          >
-            Dashboard
-          </Link>
-
-          <Link
-            to="/referrals"
-            className="font-medium text-gray-700 transition hover:text-blue-600"
-          >
-            Referrals
-          </Link>
-
-          <Link
-            to="/commissions"
-            className="font-medium text-gray-700 transition hover:text-blue-600"
-          >
-            Commissions
-          </Link>
-
-          <Link
-            to="/payouts"
-            className="font-medium text-gray-700 transition hover:text-blue-600"
-          >
-            Payouts
-          </Link>
-
-          {user?.role === "ADMIN" && (
-            <Link
-              to="/admin"
-              className="font-medium text-gray-700 transition hover:text-blue-600"
-            >
-              Admin
-            </Link>
-          )}
-        </div>
 
         {/* Right Side */}
         <div className="flex items-center gap-4">

@@ -6,7 +6,6 @@ const MyProfile = () => {
 
   return (
     <>
-      <Navbar />
 
       <div className="mx-auto max-w-4xl p-8">
         <div className="rounded-xl bg-white p-8 shadow">
