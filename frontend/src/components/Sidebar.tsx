@@ -171,7 +171,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="w-64 min-h-screen bg-white border-r shadow-sm overflow-y-auto"
+      className="w-64 min-h-screen bg-white overflow-y-auto"
       style={{
         scrollbarWidth: "thin",
         scrollbarColor: "#CBD5E0 #F7FAFC",

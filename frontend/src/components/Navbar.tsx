@@ -18,12 +18,12 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
   };
 
   return (
-    <header className="h-16 border-b border-base-300 flex items-center justify-between px-4 bg-white sticky top-0 z-40 shadow-sm">
+    <header className="h-16 flex items-center justify-between px-4 bg-white sticky top-0 z-40 shadow-sm">
       {/* Left side - Logo & Menu button */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="h-9 w-9 grid place-items-center rounded-lg md:hidden border border-base-300 hover:bg-base-200 transition-colors text-base-content"
+          className="h-9 w-9 grid place-items-center rounded-lg md:hidden hover:bg-base-200 transition-colors text-base-content"
           aria-label="Menu"
           title="Menu"
         >
@@ -64,8 +64,8 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                 className="fixed inset-0 z-40"
                 onClick={() => setIsUserMenuOpen(false)}
               />
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-                <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                <div className="px-4 py-3 sm:hidden">
                   <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-500">{user?.role}</p>
                 </div>
