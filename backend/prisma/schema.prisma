@@ -12,21 +12,96 @@ enum Role {
   ADMIN
 }
 
-model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  password     String
-  role         Role     @default(USER)
+enum PurchaseStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
 
-  referralCode String   @unique
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+
+  referralCode String @unique
 
   referredById String?
-  referredBy   User?    @relation("UserReferrals", fields: [referredById], references: [id])
-  referrals    User[]   @relation("UserReferrals")
+  referredBy   User?   @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals    User[]  @relation("UserReferrals")
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  purchases   Purchase[]
+  commissions Commission[] @relation("AffiliateCommissions")
+  payouts     Payout[]     @relation("AffiliatePayouts")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([referredById])
+}
+
+model Purchase {
+  id String @id @default(uuid())
+
+  purchaseAmount Float
+  status         PurchaseStatus @default(PENDING)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  commission Commission?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Commission {
+  id String @id @default(uuid())
+
+  commissionAmount Float
+  status           CommissionStatus @default(PENDING)
+
+  affiliateId String
+  affiliate   User   @relation("AffiliateCommissions", fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  purchaseId String   @unique
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([affiliateId])
+}
+
+model Payout {
+  id String @id @default(uuid())
+
+  payoutAmount Float
+
+  status PayoutStatus @default(PENDING)
+
+  affiliateId String
+  affiliate   User   @relation("AffiliatePayouts", fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([affiliateId])
 }
