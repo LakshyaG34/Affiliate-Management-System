@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import adminRoutes from "@/routes/admin.routes";
 import commissionRoutes from "./routes/commission.routes";
+import payoutRoutes from "./routes/payout.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/purchases", purchaseRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/commissions", commissionRoutes);
+app.use("/api/payouts", payoutRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

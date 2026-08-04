@@ -1,0 +1,69 @@
+import { Request, Response } from "express";
+
+import asyncHandler from "@/middleware/asyncHandler";
+
+import {
+  requestPayout,
+  getMyPayouts,
+  getAllPayouts,
+  updatePayoutStatus,
+} from "@/services/payout.service";
+
+import {
+  updatePayoutStatusSchema,
+} from "@/validations/payout.validation";
+
+export const requestPayoutController =
+  asyncHandler(async (req: Request, res: Response) => {
+    const payout = await requestPayout(
+      req.user!.id
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Payout requested successfully",
+      data: payout,
+    });
+  });
+
+export const getMyPayoutsController =
+  asyncHandler(async (req: Request, res: Response) => {
+    const payouts = await getMyPayouts(
+      req.user!.id
+    );
+
+    res.json({
+      success: true,
+      data: payouts,
+    });
+  });
+
+export const getAllPayoutsController =
+  asyncHandler(async (_req: Request, res: Response) => {
+    const payouts =
+      await getAllPayouts();
+
+    res.json({
+      success: true,
+      data: payouts,
+    });
+  });
+
+export const updatePayoutStatusController =
+  asyncHandler(async (req: Request, res: Response) => {
+    const { status } =
+      updatePayoutStatusSchema.parse(
+        req.body
+      );
+
+    const payout =
+      await updatePayoutStatus(
+        req.params.id as string,
+        status
+      );
+
+    res.json({
+      success: true,
+      data: payout,
+    });
+  });
