@@ -32,3 +32,31 @@ export const updateCommissionStatus = async (
     },
   });
 };
+
+export const getAllCommissions = async () => {
+  return await prisma.commission.findMany({
+    include: {
+      affiliate: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      purchase: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
