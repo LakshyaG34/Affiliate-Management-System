@@ -82,6 +82,11 @@ const Sidebar = () => {
             label: "Admin Panel",
             icon: <FaUserCog className="w-5 h-5" />,
           },
+          {
+            path: "/admin/commissions",
+            label: "Commission Management",
+            icon: <FaDollarSign className="w-5 h-5" />,
+          }
         ],
       });
     }

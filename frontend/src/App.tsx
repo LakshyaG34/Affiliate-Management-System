@@ -12,6 +12,7 @@ import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import Layout from "@/components/Layout";
 import Purchase from "./pages/Purchase";
+import CommissionManagement from "./pages/admin/CommissionManagement";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/my-profile" element={<MyProfile />} />
             <Route path="/purchase" element={<Purchase />} />
+            <Route path="/admin/commissions" element={<CommissionManagement />} />
           </Route>
 
           {/* Default */}

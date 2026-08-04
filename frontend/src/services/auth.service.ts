@@ -22,6 +22,31 @@ export interface Purchase {
   updatedAt: string;
 }
 
+export interface Commission {
+  id: string;
+  commissionAmount: number;
+  status: "PENDING" | "APPROVED" | "PAID" | "REJECTED";
+  createdAt: string;
+  updatedAt: string;
+
+  affiliate: {
+    id: string;
+    name: string;
+    email: string;
+  };
+
+  purchase: {
+    id: string;
+    purchaseAmount: number;
+
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  };
+}
+
 interface CreatePurchaseData {
   purchaseAmount: number;
 }
@@ -50,4 +75,21 @@ export const authService = {
 export const purchaseService = {
   createPurchase: (data: CreatePurchaseData) =>
     api.post<ApiResponse<Purchase>>("/purchases", data),
+};
+
+
+export const adminApi = {
+  getAllCommissions: () =>
+    api.get<ApiResponse<Commission[]>>("/admin/commissions"),
+
+  updateCommissionStatus: (
+    commissionId: string,
+    status: "APPROVED" | "REJECTED"
+  ) =>
+    api.patch<ApiResponse<Commission>>(
+      `/admin/commissions/${commissionId}`,
+      {
+        status,
+      }
+    ),
 };
