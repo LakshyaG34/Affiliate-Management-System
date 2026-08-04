@@ -19,7 +19,7 @@ import {
 import {
   commissionApi,
   type Commission,
-} from "@/services/auth.service";
+} from "@/services/apiService";
 
 const CommissionHistory = () => {
   const [commissions, setCommissions] = useState<Commission[]>([]);

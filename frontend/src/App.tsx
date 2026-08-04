@@ -14,6 +14,8 @@ import Layout from "@/components/Layout";
 import Purchase from "./pages/Purchase";
 import CommissionManagement from "./pages/admin/CommissionManagement";
 import CommissionHistory from "./pages/CommissionHistory";
+import PayoutManagement from "./pages/admin/PayoutManagement";
+import PayoutHistory from "./pages/PayoutHistory";
 
 function App() {
   return (
@@ -59,6 +61,8 @@ function App() {
             <Route path="/purchase" element={<Purchase />} />
             <Route path="/admin/commissions" element={<CommissionManagement />} />
             <Route path="/my-commissions" element={<CommissionHistory />} />
+            <Route path="/payouts-history" element={<PayoutHistory />} />
+            <Route path="/admin/payouts" element={<PayoutManagement />} />
           </Route>
 
           {/* Default */}

@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 
 import { loginSchema, type LoginFormData } from "@/validations/auth.validation";
-import { authService } from "@/services/auth.service";
+import { authService } from "@/services/apiService";
 import useAuth from "@/hooks/useAuth";
 
 const Login = () => {

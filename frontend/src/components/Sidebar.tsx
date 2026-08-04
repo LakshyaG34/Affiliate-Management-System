@@ -64,7 +64,7 @@ const Sidebar = () => {
             icon: <FaDollarSign className="w-5 h-5" />,
           },
           {
-            path: "/payouts",
+            path: "/payouts-history",
             label: "Payouts",
             icon: <FaCreditCard className="w-5 h-5" />,
           },
@@ -86,6 +86,11 @@ const Sidebar = () => {
             path: "/admin/commissions",
             label: "Commission Management",
             icon: <FaDollarSign className="w-5 h-5" />,
+          },
+          {
+            path: "/admin/payouts",
+            label: "Payout Management",
+            icon: <FaCreditCard className="w-5 h-5" />,
           }
         ],
       });

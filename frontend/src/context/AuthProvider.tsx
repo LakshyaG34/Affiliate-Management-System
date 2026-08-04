@@ -4,7 +4,7 @@ import AuthContext from "./AuthContext";
 import api from "@/services/api";
 
 import type { User } from "@/types/auth.types";
-import { authService } from "@/services/auth.service";
+import { authService } from "@/services/apiService";
 
 interface Props {
   children: React.ReactNode;

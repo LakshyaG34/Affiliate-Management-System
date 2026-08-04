@@ -20,7 +20,7 @@ import {
   registerSchema,
   type RegisterFormData,
 } from "@/validations/auth.validation";
-import { authService } from "@/services/auth.service";
+import { authService } from "@/services/apiService";
 
 const Register = () => {
   const navigate = useNavigate();

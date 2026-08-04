@@ -19,7 +19,7 @@ import {
     FaShoppingCart,
 } from "react-icons/fa";
 
-import { adminApi, type Commission } from "@/services/auth.service";
+import { adminApi, type Commission } from "@/services/apiService";
 
 const CommissionManagement = () => {
     const [commissions, setCommissions] = useState<Commission[]>([]);

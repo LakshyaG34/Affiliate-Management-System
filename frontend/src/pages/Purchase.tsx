@@ -11,7 +11,7 @@ import {
   FaShieldAlt,
   FaChartLine
 } from "react-icons/fa";
-import { purchaseService } from "@/services/auth.service";
+import { purchaseService } from "@/services/apiService";
 
 const Purchase = () => {
   const [purchaseAmount, setPurchaseAmount] = useState("");

@@ -47,6 +47,22 @@ export interface Commission {
   };
 }
 
+export interface Payout {
+  id: string;
+  payoutAmount: number;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+  updatedAt: string;
+
+  affiliate: {
+    id: string;
+    name: string;
+    email: string;
+  };
+
+  commissions: Commission[];
+}
+
 interface CreatePurchaseData {
   purchaseAmount: number;
 }
@@ -101,4 +117,26 @@ export const commissionApi = {
       "/commissions"
     ),
 
+};
+
+export const payoutApi = {
+  requestPayout: () =>
+    api.post<ApiResponse<Payout>>("/payouts/request"),
+
+  getMyPayouts: () =>
+    api.get<ApiResponse<Payout[]>>("/payouts/my"),
+
+  getAllPayouts: () =>
+    api.get<ApiResponse<Payout[]>>("/payouts/admin"),
+
+  updatePayoutStatus: (
+    payoutId: string,
+    status: "APPROVED" | "REJECTED"
+  ) =>
+    api.patch<ApiResponse<Payout>>(
+      `/payouts/admin/${payoutId}`,
+      {
+        status,
+      }
+    ),
 };
