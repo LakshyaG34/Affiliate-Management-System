@@ -7,6 +7,7 @@ import errorMiddleware from "@/middleware/error.middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import adminRoutes from "@/routes/admin.routes";
+import commissionRoutes from "./routes/commission.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/purchases", purchaseRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/commissions", commissionRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

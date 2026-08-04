@@ -93,3 +93,12 @@ export const adminApi = {
       }
     ),
 };
+
+export const commissionApi = {
+
+  getMyCommissions: () =>
+    api.get<ApiResponse<Commission[]>>(
+      "/commissions"
+    ),
+
+};

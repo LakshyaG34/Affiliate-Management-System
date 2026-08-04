@@ -1,5 +1,6 @@
 import type { Prisma, Purchase } from "@/generated/prisma/client";
 import ApiError from "@/utils/ApiError";
+import prisma from "@/lib/prisma";
 
 export const generateCommission = async (
   tx: Prisma.TransactionClient,
@@ -48,6 +49,32 @@ export const generateCommission = async (
       purchaseId: purchase.id,
       commissionAmount,
       status: "PENDING",
+    },
+  });
+};
+
+export const getMyCommissions = async (
+  affiliateId: string
+) => {
+  return await prisma.commission.findMany({
+    where: {
+      affiliateId,
+    },
+    include: {
+      purchase: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 };

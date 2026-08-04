@@ -59,7 +59,7 @@ const Sidebar = () => {
             icon: <FaUsers className="w-5 h-5" />,
           },
           {
-            path: "/commissions",
+            path: "/my-commissions",
             label: "Commissions",
             icon: <FaDollarSign className="w-5 h-5" />,
           },
