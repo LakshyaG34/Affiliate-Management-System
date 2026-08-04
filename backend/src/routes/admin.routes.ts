@@ -5,6 +5,8 @@ import adminOnly from "@/middleware/adminOnly";
 
 import {
     getAllCommissionsController,
+    getCommissionSettingsController,
+    updateCommissionSettingsController,
     updateCommissionStatusController,
 } from "@/controllers/admin.controller";
 
@@ -22,6 +24,20 @@ router.get(
     protect,
     adminOnly,
     getAllCommissionsController
+);
+
+router.get(
+  "/commission-settings",
+  protect,
+  adminOnly,
+  getCommissionSettingsController
+);
+
+router.put(
+  "/commission-settings",
+  protect,
+  adminOnly,
+  updateCommissionSettingsController
 );
 
 export default router;

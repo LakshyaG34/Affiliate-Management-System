@@ -91,6 +91,11 @@ const Sidebar = () => {
             path: "/admin/payouts",
             label: "Payout Management",
             icon: <FaCreditCard className="w-5 h-5" />,
+          },
+          {
+            path: "/admin/commission-settings",
+            label: "Commission Settings",
+            icon: <FaUserCog className="w-5 h-5" />,
           }
         ],
       });

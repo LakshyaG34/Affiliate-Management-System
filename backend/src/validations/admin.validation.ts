@@ -6,3 +6,14 @@ export const updateCommissionStatusSchema = z.object({
     "REJECTED",
   ]),
 });
+
+export const updateCommissionSettingsSchema = z.object({
+  commissionPercentage: z
+    .number()
+    .min(0)
+    .max(100),
+
+  minimumPayoutAmount: z
+    .number()
+    .positive(),
+});

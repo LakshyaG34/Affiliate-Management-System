@@ -63,6 +63,12 @@ export interface Payout {
   commissions: Commission[];
 }
 
+export interface CommissionSettingsData {
+  id: number;
+  commissionPercentage: number;
+  minimumPayoutAmount: number;
+}
+
 interface CreatePurchaseData {
   purchaseAmount: number;
 }
@@ -107,6 +113,22 @@ export const adminApi = {
       {
         status,
       }
+    ),
+
+  getCommissionSettings: () =>
+    api.get<ApiResponse<CommissionSettingsData>>(
+      "/admin/commission-settings"
+    ),
+
+  updateCommissionSettings: (
+    data: {
+      commissionPercentage: number;
+      minimumPayoutAmount: number;
+    }
+  ) =>
+    api.put<ApiResponse<CommissionSettingsData>>(
+      "/admin/commission-settings",
+      data
     ),
 };
 

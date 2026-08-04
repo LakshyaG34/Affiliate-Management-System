@@ -60,3 +60,32 @@ export const getAllCommissions = async () => {
     },
   });
 };
+
+export const getCommissionSettings = async () => {
+  const settings = await prisma.commissionSetting.findUnique({
+    where: {
+      id: 1,
+    },
+  });
+
+  if (!settings) {
+    throw new ApiError(404, "Commission settings not found");
+  }
+
+  return settings;
+};
+
+export const updateCommissionSettings = async (
+  commissionPercentage: number,
+  minimumPayoutAmount: number
+) => {
+  return prisma.commissionSetting.update({
+    where: {
+      id: 1,
+    },
+    data: {
+      commissionPercentage,
+      minimumPayoutAmount,
+    },
+  });
+};

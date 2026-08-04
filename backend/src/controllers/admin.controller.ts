@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
 import asyncHandler from "@/middleware/asyncHandler";
-import { updateCommissionStatusSchema } from "@/validations/admin.validation";
-import { getAllCommissions, updateCommissionStatus } from "@/services/admin.service";
+import { updateCommissionSettingsSchema, updateCommissionStatusSchema } from "@/validations/admin.validation";
+import { getAllCommissions, getCommissionSettings, updateCommissionSettings, updateCommissionStatus } from "@/services/admin.service";
 
 export const updateCommissionStatusController =
     asyncHandler(async (req: Request, res: Response) => {
@@ -30,6 +30,46 @@ export const getAllCommissionsController =
         res.status(200).json({
             success: true,
             data: commissions,
+        });
+
+    });
+
+
+export const getCommissionSettingsController =
+    asyncHandler(async (_req: Request, res: Response) => {
+
+        const settings =
+            await getCommissionSettings();
+
+        res.json({
+            success: true,
+            data: settings,
+        });
+
+    });
+
+export const updateCommissionSettingsController =
+    asyncHandler(async (req: Request, res: Response) => {
+
+        const {
+            commissionPercentage,
+            minimumPayoutAmount,
+        } =
+            updateCommissionSettingsSchema.parse(
+                req.body
+            );
+
+        const settings =
+            await updateCommissionSettings(
+                commissionPercentage,
+                minimumPayoutAmount
+            );
+
+        res.json({
+            success: true,
+            message:
+                "Commission settings updated successfully",
+            data: settings,
         });
 
     });
