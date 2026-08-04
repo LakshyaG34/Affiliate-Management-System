@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: "USER" | "ADMIN";
   referralCode: string;
+  createdAt: string;
 }
 
 export interface AuthContextType {

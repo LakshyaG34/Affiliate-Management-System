@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -26,10 +27,15 @@ const Register = () => {
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showReferral, setShowReferral] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  const referralCode =
+    searchParams.get("ref");
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -108,6 +114,13 @@ const Register = () => {
     },
   };
 
+  useEffect(() => {
+    if (referralCode) {
+      setValue("referralCode", referralCode);
+      setShowReferral(true);
+    }
+  }, [referralCode, setValue]);
+
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
       {/* ================= LEFT : REGISTER FORM ================= */}
@@ -162,8 +175,8 @@ const Register = () => {
             </label>
             <div
               className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "name"
-                  ? "border-blue-400 ring-4 ring-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
+                ? "border-blue-400 ring-4 ring-blue-50"
+                : "border-gray-200 hover:border-gray-300"
                 }`}
             >
               <FaUser
@@ -198,8 +211,8 @@ const Register = () => {
             </label>
             <div
               className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "email"
-                  ? "border-blue-400 ring-4 ring-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
+                ? "border-blue-400 ring-4 ring-blue-50"
+                : "border-gray-200 hover:border-gray-300"
                 }`}
             >
               <FaEnvelope
@@ -234,8 +247,8 @@ const Register = () => {
             </label>
             <div
               className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "password"
-                  ? "border-blue-400 ring-4 ring-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
+                ? "border-blue-400 ring-4 ring-blue-50"
+                : "border-gray-200 hover:border-gray-300"
                 }`}
             >
               <FaLock
@@ -298,8 +311,8 @@ const Register = () => {
                 </label>
                 <div
                   className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "referralCode"
-                      ? "border-blue-400 ring-4 ring-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-400 ring-4 ring-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
                     }`}
                 >
                   <FaGift

@@ -48,6 +48,11 @@ const Sidebar = () => {
             label: "Purchase",
             icon: <FaShoppingCart className="w-5 h-5" />,
           },
+          {
+            path: "/my-profile",
+            label: "Profile",
+            icon: <FaUserCog className="w-5 h-5" />,
+          }
         ],
       },
       {
