@@ -16,6 +16,8 @@ import {
   FaCalendarAlt,
   FaArrowUp,
   FaArrowDown,
+  FaChevronDown,
+  FaChevronUp,
 } from "react-icons/fa";
 
 import {
@@ -31,6 +33,7 @@ const PayoutManagement = () => {
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
   const [sortBy, setSortBy] = useState<"date" | "amount">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [expandedMobileRow, setExpandedMobileRow] = useState<string | null>(null);
 
   const fetchPayouts = async () => {
     try {
@@ -272,6 +275,106 @@ const PayoutManagement = () => {
     totalAmount: payouts.reduce((sum, p) => sum + p.payoutAmount, 0),
   };
 
+  // Mobile card view
+  const MobilePayoutCard = ({ payout }: { payout: Payout }) => {
+    const isExpanded = expandedMobileRow === payout.id;
+    
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <FaUser className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-gray-800 truncate">
+                  {payout.affiliate.name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {payout.affiliate.email}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-green-600">
+                ₹{payout.payoutAmount}
+              </p>
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(payout.status)}`}>
+                {getStatusIcon(payout.status)}
+                {getStatusLabel(payout.status)}
+              </span>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => setExpandedMobileRow(isExpanded ? null : payout.id)}
+            className="ml-2 p-1 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          >
+            {isExpanded ? <FaChevronUp className="w-4 h-4 text-gray-500" /> : <FaChevronDown className="w-4 h-4 text-gray-500" />}
+          </button>
+        </div>
+        
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-3 pt-3 border-t border-gray-100"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs text-gray-500">Date</p>
+                <p className="text-sm font-medium text-gray-700">
+                  {new Date(payout.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {new Date(payout.createdAt).toLocaleTimeString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Status</p>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(payout.status)}`}>
+                  {getStatusIcon(payout.status)}
+                  {getStatusLabel(payout.status)}
+                </span>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => handleViewDetails(payout)}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              >
+                <FaEye className="w-4 h-4" />
+                View
+              </button>
+              {payout.status === "PENDING" && (
+                <>
+                  <button
+                    onClick={() => handleApprove(payout)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  >
+                    <FaCheck className="w-4 h-4" />
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleReject(payout)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <FaTimes className="w-4 h-4" />
+                    Reject
+                  </button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -283,30 +386,30 @@ const PayoutManagement = () => {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
           Payout Management
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-sm md:text-base text-gray-500 mt-1">
           Review and manage affiliate payout requests
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* Stats Cards - Responsive Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4"
+          className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 p-3 md:p-4"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Payouts</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+              <p className="text-xs md:text-sm text-gray-500">Total</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-800">{stats.total}</p>
             </div>
-            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-              <FaWallet className="w-5 h-5 text-blue-600" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <FaWallet className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
             </div>
           </div>
         </motion.div>
@@ -315,15 +418,15 @@ const PayoutManagement = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4"
+          className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 p-3 md:p-4"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-xs md:text-sm text-gray-500">Pending</p>
+              <p className="text-xl md:text-2xl font-bold text-yellow-600">{stats.pending}</p>
             </div>
-            <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
-              <FaClock className="w-5 h-5 text-yellow-600" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+              <FaClock className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
             </div>
           </div>
         </motion.div>
@@ -332,15 +435,15 @@ const PayoutManagement = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4"
+          className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 p-3 md:p-4"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Approved</p>
-              <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+              <p className="text-xs md:text-sm text-gray-500">Approved</p>
+              <p className="text-xl md:text-2xl font-bold text-green-600">{stats.approved}</p>
             </div>
-            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-              <FaCheckCircle className="w-5 h-5 text-green-600" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <FaCheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
             </div>
           </div>
         </motion.div>
@@ -349,25 +452,25 @@ const PayoutManagement = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-4 text-white"
+          className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl md:rounded-2xl shadow-lg p-3 md:p-4 text-white col-span-2 md:col-span-1"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/80">Total Amount</p>
-              <p className="text-2xl font-bold">
+              <p className="text-xs md:text-sm text-white/80">Total Amount</p>
+              <p className="text-base md:text-2xl font-bold">
                 ₹{stats.totalAmount.toFixed(2)}
               </p>
             </div>
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <FaDollarSign className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <FaDollarSign className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      {/* Search and Filter - Responsive */}
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 p-3 md:p-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           <div className="flex-1 relative">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -375,48 +478,50 @@ const PayoutManagement = () => {
               placeholder="Search by affiliate name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <FaFilter className="text-gray-400 w-4 h-4" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
-            >
-              <option value="all">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "date" | "amount")}
-              className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
-            >
-              <option value="date">Sort by Date</option>
-              <option value="amount">Sort by Amount</option>
-            </select>
-            <button
-              onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-              className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-              title={sortOrder === "desc" ? "Descending" : "Ascending"}
-            >
-              {sortOrder === "desc" ? (
-                <FaArrowDown className="w-4 h-4 text-gray-600" />
-              ) : (
-                <FaArrowUp className="w-4 h-4 text-gray-600" />
-              )}
-            </button>
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 flex-1 sm:flex-none">
+              <FaFilter className="text-gray-400 w-4 h-4" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="flex-1 sm:flex-none px-3 md:px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "date" | "amount")}
+                className="px-2 md:px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white text-sm"
+              >
+                <option value="date">Date</option>
+                <option value="amount">Amount</option>
+              </select>
+              <button
+                onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+                className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                title={sortOrder === "desc" ? "Descending" : "Ascending"}
+              >
+                {sortOrder === "desc" ? (
+                  <FaArrowDown className="w-4 h-4 text-gray-600" />
+                ) : (
+                  <FaArrowUp className="w-4 h-4 text-gray-600" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Payouts Table */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      {/* Payouts Table - Desktop */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         {filteredPayouts.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -523,7 +628,25 @@ const PayoutManagement = () => {
         )}
       </div>
 
-      {/* Details Modal */}
+      {/* Mobile Cards View */}
+      <div className="md:hidden">
+        {filteredPayouts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaWallet className="w-10 h-10 text-gray-400" />
+            </div>
+            <p className="text-gray-500">No payouts found</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredPayouts.map((payout) => (
+              <MobilePayoutCard key={payout.id} payout={payout} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Details Modal - Responsive */}
       <AnimatePresence>
         {selectedPayout && (
           <motion.div
@@ -537,42 +660,42 @@ const PayoutManagement = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-2xl max-w-md w-full p-5 md:p-6 max-h-[90vh] overflow-y-auto mx-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Payout Details</h3>
+              <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Payout Details</h3>
               
               <div className="space-y-4">
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Affiliate</p>
-                  <p className="font-medium">{selectedPayout.affiliate.name}</p>
-                  <p className="text-sm text-gray-600">{selectedPayout.affiliate.email}</p>
+                <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                  <p className="text-xs md:text-sm text-gray-500">Affiliate</p>
+                  <p className="font-medium text-sm md:text-base">{selectedPayout.affiliate.name}</p>
+                  <p className="text-xs md:text-sm text-gray-600">{selectedPayout.affiliate.email}</p>
                 </div>
 
-                <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-                  <p className="text-sm text-gray-500">Payout Amount</p>
-                  <p className="text-2xl font-bold text-green-600">
+                <div className="p-3 md:p-4 bg-green-50 rounded-lg border border-green-100">
+                  <p className="text-xs md:text-sm text-gray-500">Payout Amount</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-600">
                     ₹{selectedPayout.payoutAmount}
                   </p>
                 </div>
 
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Status</p>
+                <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                  <p className="text-xs md:text-sm text-gray-500">Status</p>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedPayout.status)}`}>
                     {getStatusIcon(selectedPayout.status)}
                     {getStatusLabel(selectedPayout.status)}
                   </span>
                 </div>
 
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Created At</p>
-                  <p className="text-gray-700">
+                <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                  <p className="text-xs md:text-sm text-gray-500">Created At</p>
+                  <p className="text-sm md:text-base text-gray-700">
                     {new Date(selectedPayout.createdAt).toLocaleString()}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 {selectedPayout.status === "PENDING" && (
                   <>
                     <button
@@ -580,7 +703,7 @@ const PayoutManagement = () => {
                         closeDetails();
                         handleApprove(selectedPayout);
                       }}
-                      className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+                      className="flex-1 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
                     >
                       Approve
                     </button>
@@ -589,7 +712,7 @@ const PayoutManagement = () => {
                         closeDetails();
                         handleReject(selectedPayout);
                       }}
-                      className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+                      className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
                     >
                       Reject
                     </button>
@@ -597,7 +720,7 @@ const PayoutManagement = () => {
                 )}
                 <button
                   onClick={closeDetails}
-                  className="flex-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
                 >
                   Close
                 </button>

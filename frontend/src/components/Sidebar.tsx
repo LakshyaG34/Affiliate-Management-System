@@ -10,6 +10,7 @@ import {
   FaCreditCard,
   FaUserCog,
   FaChevronRight,
+  FaTimes,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -23,7 +24,12 @@ interface NavSection {
   items: NavItem[];
 }
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const Sidebar = ({ isOpen = false, onClose = () => {} }: SidebarProps) => {
   const location = useLocation();
   const { user } = useAuth();
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
@@ -31,6 +37,22 @@ const Sidebar = () => {
   const isActive = (path: string): boolean => {
     return location.pathname === path;
   };
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]);
+
+  // Escape key to close sidebar
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
   // Define navigation sections with icons
   const sections: NavSection[] = useMemo(() => {
@@ -82,11 +104,6 @@ const Sidebar = () => {
       baseSections.push({
         label: "Admin",
         items: [
-          {
-            path: "/admin",
-            label: "Admin Panel",
-            icon: <FaUserCog className="w-5 h-5" />,
-          },
           {
             path: "/admin/commissions",
             label: "Commission Management",
@@ -177,6 +194,7 @@ const Sidebar = () => {
         className={`${linkBase} ${
           isActivePath ? linkActive : linkIdle
         }`}
+        onClick={onClose}
       >
         <span
           className={`${
@@ -190,69 +208,95 @@ const Sidebar = () => {
   };
 
   return (
-    <aside
-      className="w-64 min-h-screen bg-white overflow-y-auto"
-      style={{
-        scrollbarWidth: "thin",
-        scrollbarColor: "#CBD5E0 #F7FAFC",
-      }}
-    >
+    <>
+      {/* Mobile Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 bg-white shadow-2xl z-50
+          md:static md:shadow-sm md:min-h-screen
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0
+          overflow-y-auto
+        `}
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "#CBD5E0 #F7FAFC",
+        }}
+      >
+        {/* Mobile close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Close sidebar"
+        >
+          <FaTimes className="w-5 h-5 text-gray-500" />
+        </button>
 
-      {/* Navigation */}
-      <nav className="p-4">
-        {sections.length === 0 ? (
-          <div className="text-sm text-gray-500 px-3 py-2">
-            No menu available for your role.
+        {/* Mobile Logo */}
+        <div className="md:hidden flex items-center gap-2 px-4 py-4 border-b border-gray-200">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+            A
           </div>
-        ) : (
-          <div className="space-y-4">
-            {sections.map((section) => {
-              // Main section (no collapse)
-              if (section.label === "Main") {
-                return (
-                  <div key={section.label}>
-                    <div className="px-3 mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
-                      {section.label}
-                    </div>
-                    <div className="space-y-1">
-                      {section.items.map((item) => (
-                        <NavItem key={item.path} {...item} />
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
+          <span className="font-semibold text-lg text-gray-800">AffiliateMS</span>
+        </div>
 
-              // Collapsible sections
-              const expanded = openGroups.has(section.label);
-              return (
-                <div key={section.label}>
-                  <SectionHeader label={section.label} expanded={expanded} />
-                  <AnimatePresence initial={false}>
-                    {expanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                        className="overflow-hidden space-y-1"
-                      >
+        {/* Navigation */}
+        <nav className="p-4">
+          {sections.length === 0 ? (
+            <div className="text-sm text-gray-500 px-3 py-2">
+              No menu available for your role.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sections.map((section) => {
+                // Main section (no collapse)
+                if (section.label === "Main") {
+                  return (
+                    <div key={section.label}>
+                      <div className="px-3 mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                        {section.label}
+                      </div>
+                      <div className="space-y-1">
                         {section.items.map((item) => (
                           <NavItem key={item.path} {...item} />
                         ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </nav>
+                      </div>
+                    </div>
+                  );
+                }
 
-      {/* Gradient fade at bottom */}
-      <div className="sticky bottom-0 h-10 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
-    </aside>
+                // Collapsible sections
+                const expanded = openGroups.has(section.label);
+                return (
+                  <div key={section.label}>
+                    <SectionHeader label={section.label} expanded={expanded} />
+                    <AnimatePresence initial={false}>
+                      {expanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden space-y-1"
+                        >
+                          {section.items.map((item) => (
+                            <NavItem key={item.path} {...item} />
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </nav>
+
+        {/* Gradient fade at bottom */}
+        <div className="sticky bottom-0 h-10 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+      </aside>
+    </>
   );
 };
 
