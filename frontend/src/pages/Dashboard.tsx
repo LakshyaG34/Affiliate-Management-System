@@ -20,11 +20,11 @@ import { MdPending, MdApproval } from "react-icons/md";
 
 import {
   dashboardApi,
-  type Dashboard,
+  type DashboardData,
 } from "@/services/apiService";
 
 const Dashboard = () => {
-  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

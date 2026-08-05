@@ -132,7 +132,7 @@ export const adminApi = {
     ),
 };
 
-export interface Dashboard {
+export interface DashboardData {
   role: "USER" | "ADMIN";
 
   totalUsers?: number;
@@ -160,7 +160,7 @@ export interface Dashboard {
 
 export const dashboardApi = {
   getDashboard: () =>
-    api.get<ApiResponse<Dashboard>>(
+    api.get<ApiResponse<DashboardData>>(
       "/dashboard"
     ),
 };
