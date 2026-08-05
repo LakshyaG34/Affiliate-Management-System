@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import ApiError from "@/utils/ApiError";
-import { CommissionStatus } from "@/generated/prisma/client";
+import { CommissionStatus } from "@prisma/client";
 
 export const updateCommissionStatus = async (
   commissionId: string,

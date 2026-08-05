@@ -1,4 +1,4 @@
-import type { Prisma, Purchase } from "@/generated/prisma/client";
+import type { Prisma, Purchase } from "@prisma/client";
 import ApiError from "@/utils/ApiError";
 import prisma from "@/lib/prisma";
 
