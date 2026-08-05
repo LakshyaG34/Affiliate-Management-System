@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  FaUsers,
   FaShoppingCart,
   FaMoneyBillWave,
   FaClock,
-  FaCheckCircle,
   FaWallet,
   FaChartLine,
   FaArrowUp,

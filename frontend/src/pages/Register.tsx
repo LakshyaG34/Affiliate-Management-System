@@ -13,8 +13,6 @@ import {
   FaUsers,
   FaHandshake,
   FaGift,
-  FaRocket,
-  FaShieldAlt,
 } from "react-icons/fa";
 
 import {

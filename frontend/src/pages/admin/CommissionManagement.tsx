@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import {
-    FaUsers,
     FaDollarSign,
     FaCheckCircle,
     FaTimesCircle,
@@ -13,10 +12,8 @@ import {
     FaCheck,
     FaTimes,
     FaChartLine,
-    FaCalendarAlt,
     FaWallet,
     FaUser,
-    FaShoppingCart,
 } from "react-icons/fa";
 
 import { adminApi, type Commission } from "@/services/apiService";

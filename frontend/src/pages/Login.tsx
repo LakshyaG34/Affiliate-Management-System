@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,10 +10,6 @@ import {
   FaCheckCircle,
   FaUsers,
   FaHandshake,
-  FaChartLine,
-  FaDollarSign,
-  FaShieldAlt,
-  FaRocket
 } from "react-icons/fa";
 
 import { loginSchema, type LoginFormData } from "@/validations/auth.validation";

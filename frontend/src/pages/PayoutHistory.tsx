@@ -9,7 +9,6 @@ import {
     FaSearch,
     FaFilter,
     FaEye,
-    FaDollarSign,
     FaCalendarAlt,
     FaArrowUp,
     FaArrowDown,

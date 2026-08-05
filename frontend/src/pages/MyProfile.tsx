@@ -1,4 +1,4 @@
-import { FaUser, FaEnvelope, FaShieldAlt, FaCopy, FaLink, FaShare, FaUsers, FaDollarSign, FaChartLine, FaCalendarAlt } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaShieldAlt, FaCopy, FaLink, FaShare, FaDollarSign, FaCalendarAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import useAuth from "@/hooks/useAuth";

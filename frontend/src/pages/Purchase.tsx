@@ -2,8 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FaDollarSign, 
-  FaShoppingCart, 
-  FaCreditCard,
+  FaShoppingCart,
   FaArrowRight,
   FaCheckCircle,
   FaWallet,

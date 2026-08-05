@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import AuthContext from "./AuthContext";
-import api from "@/services/api";
+// import api from "@/services/api";
 
 import type { User } from "@/types/auth.types";
 import { authService } from "@/services/apiService";
