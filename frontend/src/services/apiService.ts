@@ -158,6 +158,23 @@ export interface DashboardData {
   pendingPayouts?: number;
 }
 
+export interface Referral {
+  id: string;
+  name: string;
+  email: string;
+  referralCode: string;
+
+  joinedAt: string;
+
+  totalPurchases: number;
+  totalPurchaseAmount: number;
+  totalCommissionEarned: number;
+
+  status:
+    | "ACTIVE"
+    | "PENDING_PURCHASE";
+}
+
 export const dashboardApi = {
   getDashboard: () =>
     api.get<ApiResponse<DashboardData>>(
@@ -193,5 +210,12 @@ export const payoutApi = {
       {
         status,
       }
+    ),
+};
+
+export const referralApi = {
+  getMyReferrals: () =>
+    api.get<ApiResponse<Referral[]>>(
+      "/referrals"
     ),
 };

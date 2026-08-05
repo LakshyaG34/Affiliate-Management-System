@@ -17,6 +17,7 @@ import CommissionHistory from "./pages/CommissionHistory";
 import PayoutManagement from "./pages/admin/PayoutManagement";
 import PayoutHistory from "./pages/PayoutHistory";
 import CommissionSettings from "./pages/admin/CommissionSettings";
+import MyReferrals from "./pages/MyReferral";
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
             <Route path="/payouts-history" element={<PayoutHistory />} />
             <Route path="/admin/payouts" element={<PayoutManagement />} />
             <Route path="/admin/commission-settings" element={<CommissionSettings />} />
+            <Route path="/referrals" element={<MyReferrals />} />
           </Route>
 
           {/* Default */}

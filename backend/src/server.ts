@@ -10,13 +10,14 @@ import adminRoutes from "@/routes/admin.routes";
 import commissionRoutes from "./routes/commission.routes";
 import payoutRoutes from "./routes/payout.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import referralRoutes from "./routes/referral.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://affiliate-os.lakshyagoyal.com"],
+    origin: ["http://localhost:5173", "https://affiliate-os.lakshyagoyal.com"],
     credentials: true,
   })
 );
@@ -30,6 +31,10 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/commissions", commissionRoutes);
 app.use("/api/payouts", payoutRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use(
+  "/api/referrals",
+  referralRoutes
+);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
