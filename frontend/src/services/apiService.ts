@@ -132,6 +132,39 @@ export const adminApi = {
     ),
 };
 
+export interface Dashboard {
+  role: "USER" | "ADMIN";
+
+  totalUsers?: number;
+
+  totalPurchases: number;
+
+  totalReferrals?: number;
+
+  totalCommissions?: number;
+
+  pendingCommissions?: number;
+
+  pendingCommission?: number;
+
+  approvedCommission?: number;
+
+  paidCommission?: number;
+
+  totalEarnings?: number;
+
+  totalPayouts: number;
+
+  pendingPayouts?: number;
+}
+
+export const dashboardApi = {
+  getDashboard: () =>
+    api.get<ApiResponse<Dashboard>>(
+      "/dashboard"
+    ),
+};
+
 export const commissionApi = {
 
   getMyCommissions: () =>

@@ -9,6 +9,7 @@ import cors from "cors";
 import adminRoutes from "@/routes/admin.routes";
 import commissionRoutes from "./routes/commission.routes";
 import payoutRoutes from "./routes/payout.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,6 +29,7 @@ app.use("/api/purchases", purchaseRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/commissions", commissionRoutes);
 app.use("/api/payouts", payoutRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
