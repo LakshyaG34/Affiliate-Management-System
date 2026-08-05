@@ -7,10 +7,11 @@ import errorMiddleware from "@/middleware/error.middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import adminRoutes from "@/routes/admin.routes";
-import commissionRoutes from "./routes/commission.routes";
-import payoutRoutes from "./routes/payout.routes";
-import dashboardRoutes from "./routes/dashboard.routes";
-import referralRoutes from "./routes/referral.routes";
+import commissionRoutes from "@/routes/commission.routes";
+import payoutRoutes from "@/routes/payout.routes";
+import dashboardRoutes from "@/routes/dashboard.routes";
+import referralRoutes from "@/routes/referral.routes";
+import affiliateRoutes from "@/routes/affiliate.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,8 @@ app.use(
   "/api/referrals",
   referralRoutes
 );
+
+app.use("/api/affiliate", affiliateRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
