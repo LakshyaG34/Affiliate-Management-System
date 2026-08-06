@@ -170,3 +170,130 @@ export const updateCommissionSettings = async (
     },
   });
 };
+
+
+interface GetReferralHistoryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export const getReferralHistory = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+}: GetReferralHistoryParams) => {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    referredById: {
+      not: null,
+    },
+
+    OR: [
+      {
+        name: {
+          contains: search,
+          mode: "insensitive" as const,
+        },
+      },
+      {
+        email: {
+          contains: search,
+          mode: "insensitive" as const,
+        },
+      },
+      {
+        referredBy: {
+          name: {
+            contains: search,
+            mode: "insensitive" as const,
+          },
+        },
+      },
+      {
+        referredBy: {
+          email: {
+            contains: search,
+            mode: "insensitive" as const,
+          },
+        },
+      },
+    ],
+  };
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+
+      include: {
+        referredBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+
+        purchases: {
+          where: {
+            status: "SUCCESS",
+          },
+        },
+
+        commissions: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      skip,
+      take: limit,
+    }),
+
+    prisma.user.count({
+      where,
+    }),
+  ]);
+
+  const referrals = users.map((user) => ({
+    id: user.id,
+
+    name: user.name,
+
+    email: user.email,
+
+    joinedAt: user.createdAt,
+
+    affiliate: user.referredBy,
+
+    totalPurchases: user.purchases.length,
+
+    totalPurchaseAmount: user.purchases.reduce(
+      (sum, purchase) => sum + purchase.purchaseAmount,
+      0
+    ),
+
+    totalCommission: user.commissions.reduce(
+      (sum, commission) => sum + commission.commissionAmount,
+      0
+    ),
+
+    status:
+      user.purchases.length > 0
+        ? "ACTIVE"
+        : "PENDING_PURCHASE",
+  }));
+
+  return {
+    referrals,
+
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};

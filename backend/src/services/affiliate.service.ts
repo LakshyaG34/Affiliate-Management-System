@@ -143,7 +143,17 @@ export const getAffiliateDetails = async (
         include: {
             referrals: {
                 include: {
-                    purchases: true,
+                    purchases: {
+                        where: {
+                            status: "SUCCESS",
+                        },
+                    },
+
+                    commissions: {
+                        where: {
+                            affiliateId,
+                        },
+                    },
                 },
             },
 
@@ -216,8 +226,45 @@ export const getAffiliateDetails = async (
                 0
             );
 
+    const referrals = affiliate.referrals.map((referral) => {
+        const totalPurchases = referral.purchases.length;
+
+        const totalPurchaseAmount = referral.purchases.reduce(
+            (sum, purchase) => sum + purchase.purchaseAmount,
+            0
+        );
+
+        const totalCommissionEarned =
+            referral.commissions.reduce(
+                (sum, commission) =>
+                    sum + commission.commissionAmount,
+                0
+            );
+
+        return {
+            id: referral.id,
+            name: referral.name,
+            email: referral.email,
+            referralCode: referral.referralCode,
+
+            joinedAt: referral.createdAt,
+
+            totalPurchases,
+
+            totalPurchaseAmount,
+
+            totalCommissionEarned,
+
+            status:
+                totalPurchases > 0
+                    ? "ACTIVE"
+                    : "PENDING_PURCHASE",
+        };
+    });
+
     return {
         ...affiliate,
+        referrals,
 
         stats: {
             referralCount:

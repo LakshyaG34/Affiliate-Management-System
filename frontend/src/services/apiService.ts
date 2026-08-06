@@ -104,20 +104,64 @@ export interface GetAllCommissionsResponse {
   pagination: Pagination;
 }
 
+export interface AdminReferral {
+  id: string;
+
+  name: string;
+
+  email: string;
+
+  joinedAt: string;
+
+  affiliate: {
+    id: string;
+    name: string;
+    email: string;
+  };
+
+  totalPurchases: number;
+
+  totalPurchaseAmount: number;
+
+  totalCommission: number;
+
+  status:
+  | "ACTIVE"
+  | "PENDING_PURCHASE";
+}
+
+export interface GetReferralHistoryResponse {
+  referrals: AdminReferral[];
+
+  pagination: Pagination;
+}
+
 
 export const adminApi = {
   getAllCommissions: (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: string;
-}) =>
-  api.get<ApiResponse<GetAllCommissionsResponse>>(
-    "/admin/commissions",
-    {
-      params,
-    }
-  ),
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+  }) =>
+    api.get<ApiResponse<GetAllCommissionsResponse>>(
+      "/admin/commissions",
+      {
+        params,
+      }
+    ),
+
+  getReferralHistory: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) =>
+    api.get<ApiResponse<GetReferralHistoryResponse>>(
+      "/admin/referrals",
+      {
+        params,
+      }
+    ),
 
   updateCommissionStatus: (
     commissionId: string,

@@ -229,11 +229,10 @@ const AffiliateDrawer = ({
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
-                        activeTab === tab
-                          ? "border-blue-600 text-blue-600"
-                          : "border-transparent text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab
+                        ? "border-blue-600 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       {tab}{" "}
                       <span className="ml-1 text-xs font-normal text-gray-400">
@@ -241,8 +240,8 @@ const AffiliateDrawer = ({
                         {tab === "commissions"
                           ? details.commissions.length
                           : tab === "payouts"
-                          ? details.payouts.length
-                          : details.referrals.length}
+                            ? details.payouts.length
+                            : details.referrals.length}
                         )
                       </span>
                     </button>
@@ -356,34 +355,15 @@ const AffiliateDrawer = ({
                                 </p>
                               </div>
                               <span
-                                className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
-                                  r.status === "ACTIVE"
-                                    ? "bg-green-50 text-green-700 border-green-200"
-                                    : "bg-yellow-50 text-yellow-700 border-yellow-200"
-                                }`}
+                                className={`text-xs px-2 py-0.5 rounded-full font-medium border ${r.status === "ACTIVE"
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                                  }`}
                               >
                                 {r.status === "ACTIVE" ? "Active" : "Pending"}
                               </span>
                             </div>
                             <div className="flex items-center gap-4 mt-2">
-                              <div>
-                                <p className="text-xs text-gray-400">Purchases</p>
-                                <p className="text-sm font-semibold text-gray-700">
-                                  {r.totalPurchases}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-400">Purchase Value</p>
-                                <p className="text-sm font-semibold text-gray-700">
-                                  {fmt(r.totalPurchaseAmount)}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-400">Commission</p>
-                                <p className="text-sm font-semibold text-green-600">
-                                  {fmt(r.totalCommissionEarned)}
-                                </p>
-                              </div>
                               <p className="text-xs text-gray-400 ml-auto">
                                 Joined {fmtDate(r.joinedAt)}
                               </p>
@@ -767,51 +747,76 @@ const AffiliateManagement = () => {
       </div>
 
       {/* ── Pagination */}
-      {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <p className="text-sm text-gray-500">
-            Showing{" "}
-            <span className="font-medium text-gray-700">
-              {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, total)}
+      {!loading && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+          <p className="text-sm text-gray-600">
+            Showing <span className="font-semibold text-gray-800">{(page - 1) * LIMIT + 1}</span> to{" "}
+            <span className="font-semibold text-gray-800">
+              {Math.min(page * LIMIT, total)}
             </span>{" "}
-            of <span className="font-medium text-gray-700">{total}</span> affiliates
+            of <span className="font-semibold text-gray-800">{total}</span> affiliates
           </p>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                }`}
             >
-              <FaChevronLeft className="w-3 h-3 text-gray-600" />
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Previous
+              </span>
             </button>
 
-            {pageNumbers.map((p, i) =>
-              p === "…" ? (
-                <span key={`ellipsis-${i}`} className="w-8 text-center text-gray-400 text-sm">
-                  …
-                </span>
-              ) : (
-                <button
-                  key={p}
-                  onClick={() => setPage(p as number)}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors border ${
-                    page === p
-                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
+            {/* Page numbers */}
+            <div className="hidden sm:flex items-center gap-1">
+              {pageNumbers.map((p, i) =>
+                p === "…" ? (
+                  <span key={`ellipsis-${i}`} className="w-10 text-center text-gray-400 text-sm">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${page === p
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
+                      : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
+                      }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* Mobile page indicator */}
+            <div className="sm:hidden flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Page {page} of {totalPages}
+              </span>
+            </div>
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                }`}
             >
-              <FaChevronRight className="w-3 h-3 text-gray-600" />
+              <span className="flex items-center gap-2">
+                Next
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
             </button>
           </div>
         </div>

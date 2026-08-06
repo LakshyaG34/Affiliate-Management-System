@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import asyncHandler from "@/middleware/asyncHandler";
 import { updateCommissionSettingsSchema, updateCommissionStatusSchema } from "@/validations/admin.validation";
-import { getAllCommissions, getCommissionSettings, updateCommissionSettings, updateCommissionStatus } from "@/services/admin.service";
+import { getAllCommissions, getCommissionSettings, updateCommissionSettings, updateCommissionStatus, getReferralHistory } from "@/services/admin.service";
 import { CommissionStatus } from "@prisma/client/edge";
 
 export const updateCommissionStatusController =
@@ -88,4 +88,24 @@ export const updateCommissionSettingsController =
             data: settings,
         });
 
+    });
+
+
+export const getReferralHistoryController =
+    asyncHandler(async (req, res) => {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const search = String(req.query.search || "");
+
+        const data = await getReferralHistory({
+            page,
+            limit,
+            search,
+        });
+
+        res.json({
+            success: true,
+            message: "Referral history fetched",
+            data,
+        });
     });
