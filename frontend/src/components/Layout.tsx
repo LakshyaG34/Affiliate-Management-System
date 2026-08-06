@@ -1,7 +1,5 @@
 import { useState, Suspense } from "react";
 import { Outlet } from "react-router-dom";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -18,35 +16,15 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Toast Container */}
-      {/* <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        style={{ zIndex: 9999 }}
-        toastStyle={{ 
-          marginTop: '60px',
-          zIndex: 9999 
-        }}
-      /> */}
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
 
-      {/* Navbar */}
       <Navbar onMenuClick={toggleSidebar} />
-
-      {/* Body */}
-      <div className="flex">
-        {/* Sidebar - hidden on mobile by default, shown when toggled */}
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar 
           isOpen={sidebarOpen} 
           onClose={closeSidebar} 
         />
 
-        {/* Mobile overlay */}
         {sidebarOpen && (
           <div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
@@ -55,8 +33,7 @@ const Layout = () => {
           />
         )}
 
-        {/* Main content */}
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <Suspense
             fallback={
               <div className="flex justify-center items-center h-[200px]">
