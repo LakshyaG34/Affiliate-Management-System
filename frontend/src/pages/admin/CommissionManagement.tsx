@@ -28,10 +28,38 @@ const CommissionManagement = () => {
   const [selectedCommission, setSelectedCommission] = useState<Commission | null>(null);
   const [expandedMobileRow, setExpandedMobileRow] = useState<string | null>(null);
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
   const fetchCommissions = async () => {
+    setLoading(true);
+
     try {
-      const res = await adminApi.getAllCommissions();
-      setCommissions(res.data.data);
+      const res =
+        await adminApi.getAllCommissions({
+          page,
+          limit,
+          search: searchTerm,
+          status:
+            filterStatus === "all"
+              ? undefined
+              : filterStatus,
+        });
+
+      setCommissions(
+        res.data.data.commissions
+      );
+
+      setPagination(
+        res.data.data.pagination
+      );
     } catch (error) {
       console.error(error);
     } finally {
@@ -213,18 +241,18 @@ const CommissionManagement = () => {
 
   useEffect(() => {
     fetchCommissions();
-  }, []);
+  }, [page, searchTerm, filterStatus]);
 
   // Filter and search commissions
-  const filteredCommissions = commissions.filter(commission => {
-    const matchesSearch =
-      commission.affiliate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      commission.affiliate.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      commission.purchase.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      commission.purchase.user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || commission.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  // const filteredCommissions = commissions.filter(commission => {
+  //   const matchesSearch =
+  //     commission.affiliate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     commission.affiliate.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     commission.purchase.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     commission.purchase.user.email.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesFilter = filterStatus === "all" || commission.status === filterStatus;
+  //   return matchesSearch && matchesFilter;
+  // });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -265,7 +293,7 @@ const CommissionManagement = () => {
   // Mobile card view
   const MobileCommissionCard = ({ commission }: { commission: Commission }) => {
     const isExpanded = expandedMobileRow === commission.id;
-    
+
     return (
       <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between">
@@ -283,7 +311,7 @@ const CommissionManagement = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div>
                 <p className="text-xs text-gray-500">Buyer</p>
@@ -299,7 +327,7 @@ const CommissionManagement = () => {
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={() => setExpandedMobileRow(isExpanded ? null : commission.id)}
             className="ml-2 p-1 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
@@ -307,7 +335,7 @@ const CommissionManagement = () => {
             {isExpanded ? <FaChevronUp className="w-4 h-4 text-gray-500" /> : <FaChevronDown className="w-4 h-4 text-gray-500" />}
           </button>
         </div>
-        
+
         {isExpanded && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -483,7 +511,10 @@ const CommissionManagement = () => {
               type="text"
               placeholder="Search by name, email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
             />
           </div>
@@ -491,7 +522,10 @@ const CommissionManagement = () => {
             <FaFilter className="text-gray-400 w-4 h-4" />
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setPage(1);
+              }}
               className="px-3 md:px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white text-sm"
             >
               <option value="all">All Status</option>
@@ -506,7 +540,7 @@ const CommissionManagement = () => {
 
       {/* Commissions Table - Desktop */}
       <div className="hidden md:block bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        {filteredCommissions.length === 0 ? (
+        {commissions.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FaDollarSign className="w-10 h-10 text-gray-400" />
@@ -539,7 +573,7 @@ const CommissionManagement = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredCommissions.map((commission, index) => (
+                {commissions.map((commission, index) => (
                   <motion.tr
                     key={commission.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -611,13 +645,14 @@ const CommissionManagement = () => {
                 ))}
               </tbody>
             </table>
+
           </div>
         )}
       </div>
 
       {/* Mobile Cards View */}
       <div className="md:hidden">
-        {filteredCommissions.length === 0 ? (
+        {commissions.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FaDollarSign className="w-10 h-10 text-gray-400" />
@@ -626,7 +661,7 @@ const CommissionManagement = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredCommissions.map((commission) => (
+            {commissions.map((commission) => (
               <MobileCommissionCard key={commission.id} commission={commission} />
             ))}
           </div>
@@ -722,6 +757,80 @@ const CommissionManagement = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+        <p className="text-sm text-gray-600">
+          Showing <span className="font-semibold text-gray-800">{(pagination.page - 1) * pagination.limit + 1}</span> to{" "}
+          <span className="font-semibold text-gray-800">
+            {Math.min(pagination.page * pagination.limit, pagination.total)}
+          </span>{" "}
+          of <span className="font-semibold text-gray-800">{pagination.total}</span> commissions
+        </p>
+
+        <div className="flex items-center gap-2">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+          >
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Previous
+            </span>
+          </button>
+
+          {/* Page numbers */}
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+              let pageNum;
+              if (pagination.totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (page <= 3) {
+                pageNum = i + 1;
+              } else if (page >= pagination.totalPages - 2) {
+                pageNum = pagination.totalPages - 4 + i;
+              } else {
+                pageNum = page - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${page === pageNum
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
+                    : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
+                    }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            disabled={page === pagination.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === pagination.totalPages
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+          >
+            <span className="flex items-center gap-2">
+              Next
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import asyncHandler from "@/middleware/asyncHandler";
 import { updateCommissionSettingsSchema, updateCommissionStatusSchema } from "@/validations/admin.validation";
 import { getAllCommissions, getCommissionSettings, updateCommissionSettings, updateCommissionStatus } from "@/services/admin.service";
+import { CommissionStatus } from "@prisma/client/edge";
 
 export const updateCommissionStatusController =
     asyncHandler(async (req: Request, res: Response) => {
@@ -23,9 +24,24 @@ export const updateCommissionStatusController =
     });
 
 export const getAllCommissionsController =
-    asyncHandler(async (_req: Request, res: Response) => {
+    asyncHandler(async (req: Request, res: Response) => {
 
-        const commissions = await getAllCommissions();
+        const {
+            page = "1",
+            limit = "10",
+            search = "",
+            status,
+        } = req.query;
+
+        const commissions = await getAllCommissions({
+            page: Number(page),
+            limit: Number(limit),
+            search: search as string,
+            status:
+                status && status !== "all"
+                    ? (status as CommissionStatus)
+                    : undefined,
+        });
 
         res.status(200).json({
             success: true,

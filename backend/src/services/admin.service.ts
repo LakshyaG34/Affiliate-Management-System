@@ -2,6 +2,13 @@ import prisma from "@/lib/prisma";
 import ApiError from "@/utils/ApiError";
 import { CommissionStatus } from "@prisma/client";
 
+interface GetAllCommissionsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: CommissionStatus;
+}
+
 export const updateCommissionStatus = async (
   commissionId: string,
   status: CommissionStatus
@@ -33,32 +40,106 @@ export const updateCommissionStatus = async (
   });
 };
 
-export const getAllCommissions = async () => {
-  return await prisma.commission.findMany({
-    include: {
-      affiliate: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
+export const getAllCommissions = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  status,
+}: GetAllCommissionsParams) => {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    ...(status && { status }),
+
+    OR: [
+      {
+        affiliate: {
+          name: {
+            contains: search,
+            mode: "insensitive" as const,
+          },
         },
       },
-      purchase: {
-        include: {
+      {
+        affiliate: {
+          email: {
+            contains: search,
+            mode: "insensitive" as const,
+          },
+        },
+      },
+      {
+        purchase: {
           user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
+            name: {
+              contains: search,
+              mode: "insensitive" as const,
             },
           },
         },
       },
+      {
+        purchase: {
+          user: {
+            email: {
+              contains: search,
+              mode: "insensitive" as const,
+            },
+          },
+        },
+      },
+    ],
+  };
+
+  const [commissions, total] = await Promise.all([
+    prisma.commission.findMany({
+      where,
+
+      include: {
+        affiliate: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+
+        purchase: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      skip,
+      take: limit,
+    }),
+
+    prisma.commission.count({
+      where,
+    }),
+  ]);
+
+  return {
+    commissions,
+
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 };
 
 export const getCommissionSettings = async () => {

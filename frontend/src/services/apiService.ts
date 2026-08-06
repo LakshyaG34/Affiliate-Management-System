@@ -99,10 +99,25 @@ export const purchaseService = {
     api.post<ApiResponse<Purchase>>("/purchases", data),
 };
 
+export interface GetAllCommissionsResponse {
+  commissions: Commission[];
+  pagination: Pagination;
+}
+
 
 export const adminApi = {
-  getAllCommissions: () =>
-    api.get<ApiResponse<Commission[]>>("/admin/commissions"),
+  getAllCommissions: (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}) =>
+  api.get<ApiResponse<GetAllCommissionsResponse>>(
+    "/admin/commissions",
+    {
+      params,
+    }
+  ),
 
   updateCommissionStatus: (
     commissionId: string,
