@@ -63,6 +63,11 @@ export interface Payout {
   commissions: Commission[];
 }
 
+export interface GetAllPayoutsResponse {
+  payouts: Payout[];
+  pagination: Pagination;
+}
+
 export interface CommissionSettingsData {
   id: number;
   commissionPercentage: number;
@@ -369,8 +374,16 @@ export const payoutApi = {
   getMyPayouts: () =>
     api.get<ApiResponse<Payout[]>>("/payouts/my"),
 
-  getAllPayouts: () =>
-    api.get<ApiResponse<Payout[]>>("/payouts/admin"),
+  getAllPayouts: (params?: {
+    page?: number;
+    limit?: number;
+  }) =>
+    api.get<ApiResponse<GetAllPayoutsResponse>>(
+      "/payouts/admin",
+      {
+        params,
+      }
+    ),
 
   updatePayoutStatus: (
     payoutId: string,

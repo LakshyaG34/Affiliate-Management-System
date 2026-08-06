@@ -34,11 +34,26 @@ const PayoutManagement = () => {
   const [sortBy, setSortBy] = useState<"date" | "amount">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [expandedMobileRow, setExpandedMobileRow] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
+  const LIMIT = 10;
 
   const fetchPayouts = async () => {
     try {
-      const res = await payoutApi.getAllPayouts();
-      setPayouts(res.data.data);
+      const res = await payoutApi.getAllPayouts({
+        page,
+        limit: LIMIT,
+      });
+
+      setPayouts(res.data.data.payouts);
+      setPagination(res.data.data.pagination);
     } catch (error) {
       console.error(error);
     } finally {
@@ -106,7 +121,7 @@ const PayoutManagement = () => {
 
       try {
         await handleStatusUpdate(payout.id, "APPROVED");
-        
+
         Swal.fire({
           title: "Approved!",
           text: `Payout of ₹${payout.payoutAmount} has been approved.`,
@@ -182,7 +197,7 @@ const PayoutManagement = () => {
 
       try {
         await handleStatusUpdate(payout.id, "REJECTED");
-        
+
         Swal.fire({
           title: "Rejected!",
           text: "Payout has been rejected.",
@@ -217,7 +232,7 @@ const PayoutManagement = () => {
 
   useEffect(() => {
     fetchPayouts();
-  }, []);
+  }, [page]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -248,7 +263,7 @@ const PayoutManagement = () => {
   // Filter and sort payouts
   const filteredPayouts = payouts
     .filter(payout => {
-      const matchesSearch = 
+      const matchesSearch =
         payout.affiliate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payout.affiliate.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter = filterStatus === "all" || payout.status === filterStatus;
@@ -260,8 +275,8 @@ const PayoutManagement = () => {
         const dateB = new Date(b.createdAt).getTime();
         return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
       } else {
-        return sortOrder === "desc" 
-          ? b.payoutAmount - a.payoutAmount 
+        return sortOrder === "desc"
+          ? b.payoutAmount - a.payoutAmount
           : a.payoutAmount - b.payoutAmount;
       }
     });
@@ -278,7 +293,7 @@ const PayoutManagement = () => {
   // Mobile card view
   const MobilePayoutCard = ({ payout }: { payout: Payout }) => {
     const isExpanded = expandedMobileRow === payout.id;
-    
+
     return (
       <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between">
@@ -296,7 +311,7 @@ const PayoutManagement = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <p className="font-semibold text-green-600">
                 ₹{payout.payoutAmount}
@@ -307,7 +322,7 @@ const PayoutManagement = () => {
               </span>
             </div>
           </div>
-          
+
           <button
             onClick={() => setExpandedMobileRow(isExpanded ? null : payout.id)}
             className="ml-2 p-1 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
@@ -315,7 +330,7 @@ const PayoutManagement = () => {
             {isExpanded ? <FaChevronUp className="w-4 h-4 text-gray-500" /> : <FaChevronDown className="w-4 h-4 text-gray-500" />}
           </button>
         </div>
-        
+
         {isExpanded && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -664,7 +679,7 @@ const PayoutManagement = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Payout Details</h3>
-              
+
               <div className="space-y-4">
                 <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
                   <p className="text-xs md:text-sm text-gray-500">Affiliate</p>
@@ -729,6 +744,101 @@ const PayoutManagement = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+
+      {/* Pagination */}
+      {pagination.totalPages > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+          <p className="text-sm text-gray-600">
+            Showing <span className="font-semibold text-gray-800">{(page - 1) * LIMIT + 1}</span> to{" "}
+            <span className="font-semibold text-gray-800">
+              {Math.min(page * LIMIT, pagination.total)}
+            </span>{" "}
+            of <span className="font-semibold text-gray-800">{pagination.total}</span> payouts
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                }`}
+            >
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Previous
+              </span>
+            </button>
+
+            {/* Page numbers with ellipsis for large page counts */}
+            <div className="hidden sm:flex items-center gap-1">
+              {(() => {
+                const totalPages = pagination.totalPages;
+                const currentPage = page;
+                const pages = [];
+
+                if (totalPages <= 5) {
+                  for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                  }
+                } else if (currentPage <= 3) {
+                  pages.push(1, 2, 3, 4, "…", totalPages);
+                } else if (currentPage >= totalPages - 2) {
+                  pages.push(1, "…", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+                } else {
+                  pages.push(1, "…", currentPage - 1, currentPage, currentPage + 1, "…", totalPages);
+                }
+
+                return pages.map((p, i) =>
+                  p === "…" ? (
+                    <span key={`ellipsis-${i}`} className="w-10 text-center text-gray-400 text-sm">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p as number)}
+                      className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${page === p
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
+                        : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                );
+              })()}
+            </div>
+
+            {/* Mobile page indicator */}
+            <div className="sm:hidden flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Page {page} of {pagination.totalPages}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+              disabled={page === pagination.totalPages}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === pagination.totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                }`}
+            >
+              <span className="flex items-center gap-2">
+                Next
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
