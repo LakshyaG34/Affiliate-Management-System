@@ -20,7 +20,9 @@ import {
 
 import {
     payoutApi,
+    dashboardApi,
     type Payout,
+    type DashboardData,
 } from "@/services/apiService";
 
 const PayoutHistory = () => {
@@ -29,6 +31,8 @@ const PayoutHistory = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState<string>("all");
     const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
+    const [dashboard, setDashboard] =
+        useState<DashboardData | null>(null);
     const [sortBy, setSortBy] = useState<"date" | "amount">("date");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [requesting, setRequesting] = useState(false);
@@ -36,14 +40,22 @@ const PayoutHistory = () => {
 
     const fetchPayouts = async () => {
         try {
-            const res = await payoutApi.getMyPayouts();
-            setPayouts(res.data.data);
+            const [payoutRes, dashboardRes] = await Promise.all([
+                payoutApi.getMyPayouts(),
+                dashboardApi.getDashboard(),
+            ]);
+
+            setPayouts(payoutRes.data.data);
+            setDashboard(dashboardRes.data.data);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
+
+    const availableBalance =
+        dashboard?.approvedCommission ?? 0;
 
     const handleRequestPayout = async () => {
         const result = await Swal.fire({
@@ -54,7 +66,7 @@ const PayoutHistory = () => {
             <p class="text-sm text-gray-600 mb-2">You are about to request a payout for your available balance.</p>
             <div class="flex items-center justify-between border-t border-blue-100 pt-2">
               <span class="text-gray-600">Available Balance</span>
-              <span class="text-xl font-bold text-blue-600">₹0.00</span>
+              <span class="text-xl font-bold text-blue-600">₹${availableBalance.toFixed(2)}</span>
             </div>
           </div>
           <p class="text-sm text-gray-500">The payout will be processed within 3-5 business days after approval.</p>
@@ -326,11 +338,11 @@ const PayoutHistory = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs md:text-sm text-gray-500">Pending</p>
-                            <p className="text-xl md:text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                            <p className="text-xs md:text-sm text-gray-500">Balance</p>
+                            <p className="text-xl md:text-2xl font-bold text-emerald-600">₹{availableBalance.toFixed(2)}</p>
                         </div>
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
-                            <FaClock className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                            <FaWallet className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
                         </div>
                     </div>
                 </motion.div>
@@ -360,7 +372,7 @@ const PayoutHistory = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs md:text-sm text-white/80">Received</p>
+                            <p className="text-xs md:text-sm text-white/80">Total</p>
                             <p className="text-base md:text-2xl font-bold">
                                 ₹{stats.totalAmount.toFixed(2)}
                             </p>

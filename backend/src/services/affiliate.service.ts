@@ -164,6 +164,9 @@ export const getAffiliateDetails = async (
             },
 
             payouts: {
+                include: {
+                    commissions: true,
+                },
                 orderBy: {
                     createdAt: "desc",
                 },
