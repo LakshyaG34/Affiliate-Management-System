@@ -61,7 +61,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }: SidebarProps) => {
         label: "Main",
         items: [
           {
-            path: "/dashboard",
+            path: user?.role === "ADMIN" ? "/admin/dashboard" : "/dashboard",
             label: "Dashboard",
             icon: <FaHome className="w-5 h-5" />,
           },
