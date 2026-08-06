@@ -171,8 +171,90 @@ export interface Referral {
   totalCommissionEarned: number;
 
   status:
-    | "ACTIVE"
-    | "PENDING_PURCHASE";
+  | "ACTIVE"
+  | "PENDING_PURCHASE";
+}
+
+export interface Affiliate {
+  id: string;
+  name: string;
+  email: string;
+  referralCode: string;
+
+  joinedAt: string;
+
+  referralCount: number;
+
+  totalSales: number;
+
+  totalCommission: number;
+
+  availableBalance: number;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface GetAllAffiliatesResponse {
+  affiliates: Affiliate[];
+  pagination: Pagination;
+}
+
+export interface AffiliateDetails {
+  id: string;
+  name: string;
+  email: string;
+  referralCode: string;
+
+  referrals: Referral[];
+
+  purchases: Purchase[];
+
+  commissions: Commission[];
+
+  payouts: Payout[];
+
+  stats: {
+    referralCount: number;
+
+    totalSales: number;
+
+    totalCommission: number;
+
+    approvedCommission: number;
+
+    paidCommission: number;
+
+    availableBalance: number;
+  };
+}
+
+export interface PlatformStats {
+  totalUsers: number;
+
+  totalAffiliates: number;
+
+  totalReferrals: number;
+
+  totalPurchases: number;
+
+  totalRevenue: number;
+
+  totalCommission: number;
+
+  pendingCommissionAmount: number;
+
+  approvedCommissionAmount: number;
+
+  paidCommissionAmount: number;
+
+  pendingPayoutAmount: number;
+
+  approvedPayoutAmount: number;
 }
 
 export const dashboardApi = {
@@ -187,6 +269,36 @@ export const commissionApi = {
   getMyCommissions: () =>
     api.get<ApiResponse<Commission[]>>(
       "/commissions"
+    ),
+
+  getAllAffiliates: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }) =>
+    api.get<
+      ApiResponse<GetAllAffiliatesResponse>
+    >("/affiliate", {
+      params,
+    }),
+
+  getAffiliateDetails: (
+    affiliateId: string
+  ) =>
+    api.get<ApiResponse<AffiliateDetails>>(
+      `/affiliate/${affiliateId}`
+    ),
+
+  getTopAffiliates: () =>
+    api.get<ApiResponse<Affiliate[]>>(
+      "/affiliate/top-affiliates"
+    ),
+
+  getPlatformStats: () =>
+    api.get<ApiResponse<PlatformStats>>(
+      "/affiliate/platform-stats"
     ),
 
 };

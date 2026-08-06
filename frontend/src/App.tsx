@@ -37,6 +37,8 @@ const MyReferrals = lazy(
   () => import("@/pages/MyReferral")
 );
 
+const AffiliateManagement = lazy(() => import("@/pages/admin/AffiliateManagement"));
+
 import LazyLoader from "@/components/LazyLoader";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
@@ -84,6 +86,7 @@ function App() {
               <Route path="/admin/payouts" element={<PayoutManagement />} />
               <Route path="/admin/commission-settings" element={<CommissionSettings />} />
               <Route path="/referrals" element={<MyReferrals />} />
+              <Route path="/admin/affiliates" element={<AffiliateManagement />} />
             </Route>
 
             {/* Default */}

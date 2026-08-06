@@ -105,6 +105,11 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }: SidebarProps) => {
         label: "Admin",
         items: [
           {
+            path: "/admin/affiliates",
+            label: "Affiliates",
+            icon: <FaUsers className="w-5 h-5" />,
+          },
+          {
             path: "/admin/commissions",
             label: "Commission Management",
             icon: <FaDollarSign className="w-5 h-5" />,

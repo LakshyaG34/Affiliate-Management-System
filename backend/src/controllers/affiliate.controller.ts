@@ -35,7 +35,7 @@ export const getAllAffiliatesController =
         res.status(200).json({
             success: true,
             message: "Affiliates fetched successfully",
-            ...result,
+            data: result,
         });
     });
 

@@ -13,14 +13,14 @@ import adminOnly from "@/middleware/adminOnly";
 const router = express.Router();
 
 router.get(
-  "/affiliates",
+  "/",
   protect,
   adminOnly,
   getAllAffiliatesController
 );
 
 router.get(
-  "/affiliates/:id",
+  "/:id",
   protect,
   adminOnly,
   getAffiliateDetailsController
