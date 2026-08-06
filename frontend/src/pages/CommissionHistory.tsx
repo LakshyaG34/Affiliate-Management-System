@@ -609,11 +609,10 @@ const CommissionHistory = () => {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                page === 1
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-              }`}
+                }`}
             >
               <span className="flex items-center gap-2">
                 <FaChevronLeft className="w-4 h-4" />
@@ -632,11 +631,10 @@ const CommissionHistory = () => {
                   <button
                     key={p}
                     onClick={() => setPage(p as number)}
-                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
-                      page === p
+                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${page === p
                         ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
                         : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
-                    }`}
+                      }`}
                   >
                     {p}
                   </button>
@@ -654,11 +652,10 @@ const CommissionHistory = () => {
             <button
               onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={page === pagination.totalPages}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                page === pagination.totalPages
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === pagination.totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-              }`}
+                }`}
             >
               <span className="flex items-center gap-2">
                 Next

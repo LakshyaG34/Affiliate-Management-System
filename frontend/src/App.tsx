@@ -44,6 +44,7 @@ import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import Layout from "@/components/Layout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ReferralHistory from "./pages/admin/ReferralHistory";
 
 function App() {
   return (
@@ -89,6 +90,7 @@ function App() {
               <Route path="/admin/commission-settings" element={<CommissionSettings />} />
               <Route path="/referrals" element={<MyReferrals />} />
               <Route path="/admin/affiliates" element={<AffiliateManagement />} />
+              <Route path="/admin/referrals-history" element={<ReferralHistory />} />
             </Route>
 
             {/* Default */}

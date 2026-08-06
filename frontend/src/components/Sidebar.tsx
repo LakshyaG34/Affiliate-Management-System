@@ -120,6 +120,11 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }: SidebarProps) => {
             icon: <FaCreditCard className="w-5 h-5" />,
           },
           {
+            path: "/admin/referrals-history",
+            label: "Referral History",
+            icon: <FaUsers className="w-5 h-5" />,
+          },
+          {
             path: "/admin/commission-settings",
             label: "Commission Settings",
             icon: <FaUserCog className="w-5 h-5" />,
