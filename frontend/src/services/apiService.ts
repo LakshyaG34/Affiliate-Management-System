@@ -240,6 +240,11 @@ export interface Referral {
   | "PENDING_PURCHASE";
 }
 
+export interface GetMyReferralsResponse {
+  referrals: Referral[];
+  pagination: Pagination;
+}
+
 export interface Affiliate {
   id: string;
   name: string;
@@ -329,12 +334,23 @@ export const dashboardApi = {
     ),
 };
 
+export interface GetMyCommissionsResponse {
+  commissions: Commission[];
+  pagination: Pagination;
+}
+
 export const commissionApi = {
 
-  getMyCommissions: () =>
-    api.get<ApiResponse<Commission[]>>(
-      "/commissions"
-    ),
+  getMyCommissions: (params?: {
+  page?: number;
+  limit?: number;
+}) =>
+  api.get<ApiResponse<GetMyCommissionsResponse>>(
+    "/commissions",
+    {
+      params,
+    }
+  ),
 
   getAllAffiliates: (params?: {
     page?: number;
@@ -368,19 +384,32 @@ export const commissionApi = {
 
 };
 
+export interface GetMyPayoutsResponse {
+  payouts: Payout[];
+  pagination: Pagination;
+}
+
 export const payoutApi = {
   requestPayout: (
-  commissionIds: string[]
-) =>
-  api.post<ApiResponse<Payout>>(
-    "/payouts/request",
-    {
-      commissionIds,
-    }
-  ),
+    commissionIds: string[]
+  ) =>
+    api.post<ApiResponse<Payout>>(
+      "/payouts/request",
+      {
+        commissionIds,
+      }
+    ),
 
-  getMyPayouts: () =>
-    api.get<ApiResponse<Payout[]>>("/payouts/my"),
+  getMyPayouts: (params?: {
+    page?: number;
+    limit?: number;
+  }) =>
+    api.get<ApiResponse<GetMyPayoutsResponse>>(
+      "/payouts/my",
+      {
+        params,
+      }
+    ),
 
   getAllPayouts: (params?: {
     page?: number;
@@ -406,8 +435,14 @@ export const payoutApi = {
 };
 
 export const referralApi = {
-  getMyReferrals: () =>
-    api.get<ApiResponse<Referral[]>>(
-      "/referrals"
+  getMyReferrals: (params?: {
+    page?: number;
+    limit?: number;
+  }) =>
+    api.get<ApiResponse<GetMyReferralsResponse>>(
+      "/referrals",
+      {
+        params,
+      }
     ),
 };

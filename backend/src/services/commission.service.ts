@@ -53,28 +53,60 @@ export const generateCommission = async (
   });
 };
 
+interface GetMyCommissionsParams {
+  page?: number;
+  limit?: number;
+}
+
 export const getMyCommissions = async (
-  affiliateId: string
+  affiliateId: string,
+  {
+    page = 1,
+    limit = 10,
+  }: GetMyCommissionsParams
 ) => {
-  return await prisma.commission.findMany({
-    where: {
-      affiliateId,
-    },
-    include: {
-      purchase: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
+  const skip = (page - 1) * limit;
+
+  const [commissions, total] = await Promise.all([
+    prisma.commission.findMany({
+      where: {
+        affiliateId,
+      },
+      include: {
+        purchase: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
             },
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    }),
+
+    prisma.commission.count({
+      where: {
+        affiliateId,
+      },
+    }),
+  ]);
+
+  return {
+    commissions,
+
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 };

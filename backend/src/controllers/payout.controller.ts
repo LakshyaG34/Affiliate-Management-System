@@ -36,13 +36,20 @@ const payout = await requestPayout(
 
 export const getMyPayoutsController =
   asyncHandler(async (req: Request, res: Response) => {
-    const payouts = await getMyPayouts(
-      req.user!.id
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await getMyPayouts(
+      req.user!.id,
+      {
+        page,
+        limit,
+      }
     );
 
     res.json({
       success: true,
-      data: payouts,
+      data: result,
     });
   });
 

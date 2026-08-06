@@ -76,20 +76,51 @@ export const requestPayout = async (affiliateId: string, commissionIds: string[]
   });
 };
 
+interface GetMyPayoutsParams {
+  page?: number;
+  limit?: number;
+}
+
 export const getMyPayouts = async (
-  affiliateId: string
+  affiliateId: string,
+  {
+    page = 1,
+    limit = 10,
+  }: GetMyPayoutsParams
 ) => {
-  return prisma.payout.findMany({
-    where: {
-      affiliateId,
+  const skip = (page - 1) * limit;
+
+  const [payouts, total] = await Promise.all([
+    prisma.payout.findMany({
+      where: {
+        affiliateId,
+      },
+      include: {
+        commissions: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    }),
+
+    prisma.payout.count({
+      where: {
+        affiliateId,
+      },
+    }),
+  ]);
+
+  return {
+    payouts,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-    include: {
-      commissions: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 };
 
 interface GetAllPayoutsParams {

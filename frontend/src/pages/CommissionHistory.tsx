@@ -15,6 +15,11 @@ import {
   FaArrowDown,
   FaChevronDown,
   FaChevronUp,
+  FaPaperPlane,
+  FaCheck,
+  FaHourglassHalf,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 import {
@@ -23,7 +28,9 @@ import {
 } from "@/services/apiService";
 
 import Swal from "sweetalert2";
-import { payoutApi, type Payout } from "@/services/apiService";
+import { payoutApi } from "@/services/apiService";
+
+const LIMIT = 10;
 
 const CommissionHistory = () => {
   const [commissions, setCommissions] = useState<Commission[]>([]);
@@ -34,10 +41,23 @@ const CommissionHistory = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [expandedMobileRow, setExpandedMobileRow] = useState<string | null>(null);
 
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
   const fetchCommissions = async () => {
     try {
-      const res = await commissionApi.getMyCommissions();
-      setCommissions(res.data.data);
+      const res = await commissionApi.getMyCommissions({
+        page,
+        limit: LIMIT,
+      });
+
+      setCommissions(res.data.data.commissions);
+      setPagination(res.data.data.pagination);
     } catch (error) {
       console.error(error);
     } finally {
@@ -45,28 +65,58 @@ const CommissionHistory = () => {
     }
   };
 
-  const handleRequestPayout = async (
-    commissionId: string
-  ) => {
+  const handleRequestPayout = async (commissionId: string) => {
     const result = await Swal.fire({
       title: "Request Payout?",
-      text: "Submit payout request for this commission?",
+      html: `
+        <div class="text-left">
+          <div class="p-4 bg-blue-50 rounded-lg mb-3">
+            <p class="text-sm text-gray-600 mb-2">You are about to request a payout for this commission.</p>
+            <div class="flex items-center justify-between border-t border-blue-100 pt-2">
+              <span class="text-gray-600">Commission Amount</span>
+              <span class="text-xl font-bold text-blue-600">₹${commissions.find(c => c.id === commissionId)?.commissionAmount || 0}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">The payout will be processed within 3-5 business days.</p>
+        </div>
+      `,
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Request",
+      confirmButtonColor: "#3B82F6",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Request Payout",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors',
+        cancelButton: 'px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors',
+        popup: 'rounded-2xl',
+        title: 'text-2xl font-bold',
+      },
     });
 
     if (!result.isConfirmed) return;
 
     try {
+      Swal.fire({
+        title: "Processing...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       await payoutApi.requestPayout([commissionId]);
 
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "Payout request submitted.",
-        timer: 1800,
+        title: "Success!",
+        text: "Payout request submitted successfully.",
+        timer: 2000,
         showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl',
+        },
       });
 
       fetchCommissions();
@@ -74,16 +124,18 @@ const CommissionHistory = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text:
-          err.response?.data?.message ??
-          "Failed to request payout",
+        text: err.response?.data?.message || "Failed to request payout",
+        confirmButtonColor: "#EF4444",
+        customClass: {
+          popup: 'rounded-2xl',
+        },
       });
     }
   };
 
   useEffect(() => {
     fetchCommissions();
-  }, []);
+  }, [page]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -144,6 +196,28 @@ const CommissionHistory = () => {
     paid: commissions.filter(c => c.status === "PAID").length,
     totalAmount: commissions.reduce((sum, c) => sum + c.commissionAmount, 0),
   };
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const totalPages = pagination.totalPages;
+    const currentPage = page;
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, "…", totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1, "…", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, "…", currentPage - 1, currentPage, currentPage + 1, "…", totalPages);
+    }
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
 
   // Mobile card view
   const MobileCommissionCard = ({ commission }: { commission: Commission }) => {
@@ -216,28 +290,24 @@ const CommissionHistory = () => {
                   {new Date(commission.createdAt).toLocaleTimeString()}
                 </p>
               </div>
-              <div className="mt-4">
-                {commission.status === "APPROVED" &&
-                  !commission.payoutId ? (
-                  <button
-                    onClick={() =>
-                      handleRequestPayout(
-                        commission.id
-                      )
-                    }
-                    className="w-full bg-blue-600
-                   hover:bg-blue-700
-                   text-white
-                   py-2 rounded-lg"
-                  >
-                    Request Payout
-                  </button>
-                ) : commission.status === "APPROVED" ? (
-                  <div className="text-center text-orange-600 font-medium">
-                    Already Requested
-                  </div>
-                ) : null}
-              </div>
+            </div>
+
+            {/* Mobile Action Button */}
+            <div className="mt-4">
+              {commission.status === "APPROVED" && !commission.payoutId ? (
+                <button
+                  onClick={() => handleRequestPayout(commission.id)}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-md shadow-blue-200"
+                >
+                  <FaPaperPlane className="w-4 h-4" />
+                  Request Payout
+                </button>
+              ) : commission.status === "APPROVED" ? (
+                <div className="flex items-center justify-center gap-2 text-orange-600 font-medium bg-orange-50 py-2 rounded-lg border border-orange-200">
+                  <FaHourglassHalf className="w-4 h-4" />
+                  <span>Payout Requested</span>
+                </div>
+              ) : null}
             </div>
           </motion.div>
         )}
@@ -478,28 +548,21 @@ const CommissionHistory = () => {
                       </p>
                     </td>
                     <td className="px-4 py-3">
-                      {commission.status === "APPROVED" &&
-                        !commission.payoutId ? (
+                      {commission.status === "APPROVED" && !commission.payoutId ? (
                         <button
-                          onClick={() =>
-                            handleRequestPayout(
-                              commission.id
-                            )
-                          }
-                          className="px-3 py-1 rounded-lg
-                   bg-blue-600
-                   hover:bg-blue-700
-                   text-white
-                   text-sm"
+                          onClick={() => handleRequestPayout(commission.id)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-medium transition-all duration-200 shadow-md shadow-blue-200"
                         >
+                          <FaPaperPlane className="w-3.5 h-3.5" />
                           Request
                         </button>
                       ) : commission.status === "APPROVED" ? (
-                        <span className="text-orange-600 text-sm font-medium">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200">
+                          <FaHourglassHalf className="w-3.5 h-3.5" />
                           Requested
                         </span>
                       ) : (
-                        "-"
+                        <span className="text-gray-400 text-sm">—</span>
                       )}
                     </td>
                   </motion.tr>
@@ -530,6 +593,81 @@ const CommissionHistory = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination - Improved UI */}
+      {pagination.totalPages > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+          <p className="text-sm text-gray-600">
+            Showing <span className="font-semibold text-gray-800">{(page - 1) * LIMIT + 1}</span> to{" "}
+            <span className="font-semibold text-gray-800">
+              {Math.min(page * LIMIT, pagination.total)}
+            </span>{" "}
+            of <span className="font-semibold text-gray-800">{pagination.total}</span> commissions
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                page === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <FaChevronLeft className="w-4 h-4" />
+                Previous
+              </span>
+            </button>
+
+            {/* Page numbers */}
+            <div className="hidden sm:flex items-center gap-1">
+              {pageNumbers.map((p, i) =>
+                p === "…" ? (
+                  <span key={`ellipsis-${i}`} className="w-10 text-center text-gray-400 text-sm">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
+                      page === p
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
+                        : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* Mobile page indicator */}
+            <div className="sm:hidden flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Page {page} of {pagination.totalPages}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+              disabled={page === pagination.totalPages}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                page === pagination.totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                Next
+                <FaChevronRight className="w-4 h-4" />
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -15,12 +15,16 @@ import {
     FaChevronDown,
     FaChevronUp,
     FaUserPlus,
+    FaChevronLeft,
+    FaChevronRight,
 } from "react-icons/fa";
 
 import {
     referralApi,
     type Referral,
 } from "@/services/apiService";
+
+const LIMIT = 10;
 
 const MyReferrals = () => {
     const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -31,10 +35,23 @@ const MyReferrals = () => {
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [expandedMobileRow, setExpandedMobileRow] = useState<string | null>(null);
 
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 1,
+    });
+
     const fetchReferrals = async () => {
         try {
-            const res = await referralApi.getMyReferrals();
-            setReferrals(res.data.data);
+            const res = await referralApi.getMyReferrals({
+                page,
+                limit: LIMIT,
+            });
+
+            setReferrals(res.data.data.referrals);
+            setPagination(res.data.data.pagination);
         } catch (error) {
             console.error(error);
         } finally {
@@ -44,7 +61,7 @@ const MyReferrals = () => {
 
     useEffect(() => {
         fetchReferrals();
-    }, []);
+    }, [page]);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -97,6 +114,28 @@ const MyReferrals = () => {
         totalPurchases: referrals.reduce((sum, r) => sum + r.totalPurchases, 0),
         totalCommission: referrals.reduce((sum, r) => sum + r.totalCommissionEarned, 0),
     };
+
+    // Generate page numbers with ellipsis
+    const getPageNumbers = () => {
+        const totalPages = pagination.totalPages;
+        const currentPage = page;
+        const pages: (number | string)[] = [];
+
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else if (currentPage <= 3) {
+            pages.push(1, 2, 3, 4, "…", totalPages);
+        } else if (currentPage >= totalPages - 2) {
+            pages.push(1, "…", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        } else {
+            pages.push(1, "…", currentPage - 1, currentPage, currentPage + 1, "…", totalPages);
+        }
+        return pages;
+    };
+
+    const pageNumbers = getPageNumbers();
 
     // Mobile card view
     const MobileReferralCard = ({ referral }: { referral: Referral }) => {
@@ -448,6 +487,78 @@ const MyReferrals = () => {
                     </div>
                 )}
             </div>
+
+            {/* Pagination - Improved UI */}
+            {pagination.totalPages > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-4 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+                    <p className="text-sm text-gray-600">
+                        Showing <span className="font-semibold text-gray-800">{(page - 1) * LIMIT + 1}</span> to{" "}
+                        <span className="font-semibold text-gray-800">
+                            {Math.min(page * LIMIT, pagination.total)}
+                        </span>{" "}
+                        of <span className="font-semibold text-gray-800">{pagination.total}</span> referrals
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === 1
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                <FaChevronLeft className="w-4 h-4" />
+                                Previous
+                            </span>
+                        </button>
+
+                        {/* Page numbers */}
+                        <div className="hidden sm:flex items-center gap-1">
+                            {pageNumbers.map((p, i) =>
+                                p === "…" ? (
+                                    <span key={`ellipsis-${i}`} className="w-10 text-center text-gray-400 text-sm">
+                                        …
+                                    </span>
+                                ) : (
+                                    <button
+                                        key={p}
+                                        onClick={() => setPage(p as number)}
+                                        className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${page === p
+                                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-200"
+                                                : "text-gray-700 hover:bg-gray-50 hover:border-gray-300 border border-transparent hover:border-gray-200"
+                                            }`}
+                                    >
+                                        {p}
+                                    </button>
+                                )
+                            )}
+                        </div>
+
+                        {/* Mobile page indicator */}
+                        <div className="sm:hidden flex items-center gap-2">
+                            <span className="text-sm text-gray-600">
+                                Page {page} of {pagination.totalPages}
+                            </span>
+                        </div>
+
+                        <button
+                            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                            disabled={page === pagination.totalPages}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${page === pagination.totalPages
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                Next
+                                <FaChevronRight className="w-4 h-4" />
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Swal from "sweetalert2";
 import { 
-  FaDollarSign, 
+  FaRupeeSign,
   FaShoppingCart,
   FaArrowRight,
   FaCheckCircle,
@@ -22,18 +23,77 @@ const Purchase = () => {
   ) => {
     e.preventDefault();
 
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: "Confirm Purchase?",
+      html: `
+        <div class="text-left">
+          <div class="p-4 bg-blue-50 rounded-lg mb-3">
+            <p class="text-sm text-gray-600 mb-2">You are about to make a purchase.</p>
+            <div class="flex items-center justify-between border-t border-blue-100 pt-2">
+              <span class="text-gray-600">Amount</span>
+              <span class="text-xl font-bold text-blue-600">₹${Number(purchaseAmount).toFixed(2)}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500">This purchase will be processed immediately.</p>
+        </div>
+      `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3B82F6",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Confirm Purchase",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      customClass: {
+        confirmButton: 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors',
+        cancelButton: 'px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors',
+        popup: 'rounded-2xl',
+        title: 'text-2xl font-bold',
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       setLoading(true);
+
+      // Show processing state
+      Swal.fire({
+        title: "Processing...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
       const res = await purchaseService.createPurchase({
         purchaseAmount: Number(purchaseAmount),
       });
 
-      alert(res.data.message);
+      // Success notification
+      Swal.fire({
+        title: "Purchase Successful!",
+        text: res.data.message || "Your purchase has been completed successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl',
+        },
+      });
 
       setPurchaseAmount("");
     } catch (error: any) {
-      alert(error.response?.data?.message || "Purchase failed");
+      Swal.fire({
+        title: "Purchase Failed",
+        text: error.response?.data?.message || "Something went wrong. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#EF4444",
+        customClass: {
+          popup: 'rounded-2xl',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -43,25 +103,25 @@ const Purchase = () => {
   const quickAmounts = [50, 100, 250, 500, 1000];
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto p-4 md:p-0">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
           Make a Purchase
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-sm md:text-base text-gray-500 mt-1">
           Enter the amount you want to purchase
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* ================= MAIN PURCHASE FORM ================= */}
         <div className="lg:col-span-2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300"
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-8 hover:shadow-xl transition-shadow duration-300"
           >
             <form onSubmit={handlePurchase} className="space-y-6">
               {/* Amount Field */}
@@ -76,7 +136,7 @@ const Purchase = () => {
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <FaDollarSign
+                  <FaRupeeSign
                     className={`w-5 h-5 mr-3 transition-colors ${
                       focusedField === "amount" ? "text-blue-500" : "text-gray-400"
                     }`}
@@ -92,7 +152,7 @@ const Purchase = () => {
                     step="0.01"
                     min="0"
                   />
-                  <span className="text-sm font-medium text-gray-500 ml-2">USD</span>
+                  <span className="text-sm font-medium text-gray-500 ml-2">₹</span>
                 </div>
               </div>
 
@@ -113,7 +173,7 @@ const Purchase = () => {
                           : "bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100"
                       }`}
                     >
-                      ${amount}
+                      ₹{amount}
                     </motion.button>
                   ))}
                 </div>
@@ -137,7 +197,7 @@ const Purchase = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-blue-600">
-                            ${Number(purchaseAmount).toFixed(2)}
+                            ₹{Number(purchaseAmount).toFixed(2)}
                           </p>
                           <p className="text-xs text-green-600 flex items-center gap-1 justify-end">
                             <FaCheckCircle className="w-3 h-3" />
@@ -186,7 +246,7 @@ const Purchase = () => {
             className="space-y-4"
           >
             {/* Purchase Benefits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-6">
               <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                 <FaGift className="w-4 h-4 text-blue-600" />
                 Benefits
@@ -214,22 +274,22 @@ const Purchase = () => {
             </div>
 
             {/* Purchase Stats */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-6 text-white">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-4 md:p-6 text-white">
               <h3 className="text-sm font-semibold text-white/90 mb-4">
                 Your Stats
               </h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-blue-200">Total Purchases</p>
-                  <p className="text-2xl font-bold">$0.00</p>
+                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
                 </div>
                 <div className="border-t border-white/20 pt-4">
                   <p className="text-xs text-blue-200">Cashback Earned</p>
-                  <p className="text-2xl font-bold">$0.00</p>
+                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
                 </div>
                 <div className="border-t border-white/20 pt-4">
                   <p className="text-xs text-blue-200">Pending Rewards</p>
-                  <p className="text-2xl font-bold">$0.00</p>
+                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
                 </div>
               </div>
             </div>

@@ -5,13 +5,19 @@ import asyncHandler from "@/middleware/asyncHandler";
 
 export const getMyCommissionsController =
   asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
-    const commissions =
-      await getMyCommissions(req.user!.id);
+    const result = await getMyCommissions(
+      req.user!.id,
+      {
+        page,
+        limit,
+      }
+    );
 
     res.status(200).json({
       success: true,
-      data: commissions,
+      data: result,
     });
-
   });
