@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import ApiError from "@/utils/ApiError";
 
-export const requestPayout = async (affiliateId: string) => {
+export const requestPayout = async (affiliateId: string, commissionIds: string[]) => {
   const settings = await prisma.commissionSetting.findUnique({
     where: {
       id: 1,
@@ -14,11 +14,21 @@ export const requestPayout = async (affiliateId: string) => {
 
   const commissions = await prisma.commission.findMany({
     where: {
+      id: {
+        in: commissionIds,
+      },
       affiliateId,
       status: "APPROVED",
       payoutId: null,
     },
   });
+
+  if (commissions.length !== commissionIds.length) {
+    throw new ApiError(
+      400,
+      "Invalid commission selection"
+    );
+  }
 
   if (commissions.length === 0) {
     throw new ApiError(

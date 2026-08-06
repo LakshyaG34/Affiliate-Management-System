@@ -22,6 +22,9 @@ import {
   type Commission,
 } from "@/services/apiService";
 
+import Swal from "sweetalert2";
+import { payoutApi, type Payout } from "@/services/apiService";
+
 const CommissionHistory = () => {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +42,42 @@ const CommissionHistory = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRequestPayout = async (
+    commissionId: string
+  ) => {
+    const result = await Swal.fire({
+      title: "Request Payout?",
+      text: "Submit payout request for this commission?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Request",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await payoutApi.requestPayout([commissionId]);
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Payout request submitted.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+
+      fetchCommissions();
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          err.response?.data?.message ??
+          "Failed to request payout",
+      });
     }
   };
 
@@ -176,6 +215,28 @@ const CommissionHistory = () => {
                 <p className="text-xs text-gray-400">
                   {new Date(commission.createdAt).toLocaleTimeString()}
                 </p>
+              </div>
+              <div className="mt-4">
+                {commission.status === "APPROVED" &&
+                  !commission.payoutId ? (
+                  <button
+                    onClick={() =>
+                      handleRequestPayout(
+                        commission.id
+                      )
+                    }
+                    className="w-full bg-blue-600
+                   hover:bg-blue-700
+                   text-white
+                   py-2 rounded-lg"
+                  >
+                    Request Payout
+                  </button>
+                ) : commission.status === "APPROVED" ? (
+                  <div className="text-center text-orange-600 font-medium">
+                    Already Requested
+                  </div>
+                ) : null}
               </div>
             </div>
           </motion.div>
@@ -362,6 +423,9 @@ const CommissionHistory = () => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -412,6 +476,31 @@ const CommissionHistory = () => {
                       <p className="text-xs text-gray-400">
                         {new Date(commission.createdAt).toLocaleTimeString()}
                       </p>
+                    </td>
+                    <td className="px-4 py-3">
+                      {commission.status === "APPROVED" &&
+                        !commission.payoutId ? (
+                        <button
+                          onClick={() =>
+                            handleRequestPayout(
+                              commission.id
+                            )
+                          }
+                          className="px-3 py-1 rounded-lg
+                   bg-blue-600
+                   hover:bg-blue-700
+                   text-white
+                   text-sm"
+                        >
+                          Request
+                        </button>
+                      ) : commission.status === "APPROVED" ? (
+                        <span className="text-orange-600 text-sm font-medium">
+                          Requested
+                        </span>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                   </motion.tr>
                 ))}

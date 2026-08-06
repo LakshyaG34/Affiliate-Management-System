@@ -57,76 +57,76 @@ const PayoutHistory = () => {
     const availableBalance =
         dashboard?.approvedCommission ?? 0;
 
-    const handleRequestPayout = async () => {
-        const result = await Swal.fire({
-            title: "Request Payout?",
-            html: `
-        <div class="text-left">
-          <div class="p-4 bg-blue-50 rounded-lg mb-3">
-            <p class="text-sm text-gray-600 mb-2">You are about to request a payout for your available balance.</p>
-            <div class="flex items-center justify-between border-t border-blue-100 pt-2">
-              <span class="text-gray-600">Available Balance</span>
-              <span class="text-xl font-bold text-blue-600">₹${availableBalance.toFixed(2)}</span>
-            </div>
-          </div>
-          <p class="text-sm text-gray-500">The payout will be processed within 3-5 business days after approval.</p>
-        </div>
-      `,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3B82F6",
-            cancelButtonColor: "#6B7280",
-            confirmButtonText: "Request Payout",
-            cancelButtonText: "Cancel",
-            reverseButtons: true,
-            customClass: {
-                confirmButton: 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors',
-                cancelButton: 'px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors',
-                popup: 'rounded-2xl',
-                title: 'text-2xl font-bold',
-            },
-        });
+    // const handleRequestPayout = async () => {
+    //     const result = await Swal.fire({
+    //         title: "Request Payout?",
+    //         html: `
+    //     <div class="text-left">
+    //       <div class="p-4 bg-blue-50 rounded-lg mb-3">
+    //         <p class="text-sm text-gray-600 mb-2">You are about to request a payout for your available balance.</p>
+    //         <div class="flex items-center justify-between border-t border-blue-100 pt-2">
+    //           <span class="text-gray-600">Available Balance</span>
+    //           <span class="text-xl font-bold text-blue-600">₹${availableBalance.toFixed(2)}</span>
+    //         </div>
+    //       </div>
+    //       <p class="text-sm text-gray-500">The payout will be processed within 3-5 business days after approval.</p>
+    //     </div>
+    //   `,
+    //         icon: "question",
+    //         showCancelButton: true,
+    //         confirmButtonColor: "#3B82F6",
+    //         cancelButtonColor: "#6B7280",
+    //         confirmButtonText: "Request Payout",
+    //         cancelButtonText: "Cancel",
+    //         reverseButtons: true,
+    //         customClass: {
+    //             confirmButton: 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors',
+    //             cancelButton: 'px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors',
+    //             popup: 'rounded-2xl',
+    //             title: 'text-2xl font-bold',
+    //         },
+    //     });
 
-        if (result.isConfirmed) {
-            setRequesting(true);
+    //     if (result.isConfirmed) {
+    //         setRequesting(true);
 
-            Swal.fire({
-                title: "Processing...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
+    //         Swal.fire({
+    //             title: "Processing...",
+    //             allowOutsideClick: false,
+    //             didOpen: () => {
+    //                 Swal.showLoading();
+    //             },
+    //         });
 
-            try {
-                await payoutApi.requestPayout();
-                await fetchPayouts();
+    //         try {
+    //             await payoutApi.requestPayout();
+    //             await fetchPayouts();
 
-                Swal.fire({
-                    title: "Success!",
-                    text: "Your payout request has been submitted successfully.",
-                    icon: "success",
-                    timer: 2000,
-                    showConfirmButton: false,
-                    customClass: {
-                        popup: 'rounded-2xl',
-                    },
-                });
-            } catch (error: any) {
-                Swal.fire({
-                    title: "Error!",
-                    text: error.response?.data?.message || "Failed to request payout. Please try again.",
-                    icon: "error",
-                    confirmButtonColor: "#EF4444",
-                    customClass: {
-                        popup: 'rounded-2xl',
-                    },
-                });
-            } finally {
-                setRequesting(false);
-            }
-        }
-    };
+    //             Swal.fire({
+    //                 title: "Success!",
+    //                 text: "Your payout request has been submitted successfully.",
+    //                 icon: "success",
+    //                 timer: 2000,
+    //                 showConfirmButton: false,
+    //                 customClass: {
+    //                     popup: 'rounded-2xl',
+    //                 },
+    //             });
+    //         } catch (error: any) {
+    //             Swal.fire({
+    //                 title: "Error!",
+    //                 text: error.response?.data?.message || "Failed to request payout. Please try again.",
+    //                 icon: "error",
+    //                 confirmButtonColor: "#EF4444",
+    //                 customClass: {
+    //                     popup: 'rounded-2xl',
+    //                 },
+    //             });
+    //         } finally {
+    //             setRequesting(false);
+    //         }
+    //     }
+    // };
 
     const handleViewDetails = (payout: Payout) => {
         setSelectedPayout(payout);
@@ -288,7 +288,7 @@ const PayoutHistory = () => {
                         </p>
                     </div>
 
-                    <motion.button
+                    {/* <motion.button
                         onClick={handleRequestPayout}
                         disabled={requesting}
                         whileHover={{ scale: 1.02 }}
@@ -307,7 +307,7 @@ const PayoutHistory = () => {
                                 <span>Request Payout</span>
                             </>
                         )}
-                    </motion.button>
+                    </motion.button> */}
                 </div>
             </div>
 

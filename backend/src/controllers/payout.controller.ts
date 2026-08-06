@@ -10,14 +10,22 @@ import {
 } from "@/services/payout.service";
 
 import {
+  requestPayoutSchema,
   updatePayoutStatusSchema,
 } from "@/validations/payout.validation";
 
 export const requestPayoutController =
   asyncHandler(async (req: Request, res: Response) => {
-    const payout = await requestPayout(
-      req.user!.id
-    );
+    // const payout = await requestPayout(
+    //   req.user!.id
+    // );
+    const { commissionIds } =
+  requestPayoutSchema.parse(req.body);
+
+const payout = await requestPayout(
+  req.user!.id,
+  commissionIds
+);
 
     res.status(201).json({
       success: true,

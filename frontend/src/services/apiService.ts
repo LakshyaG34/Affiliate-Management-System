@@ -28,6 +28,7 @@ export interface Commission {
   status: "PENDING" | "APPROVED" | "PAID" | "REJECTED";
   createdAt: string;
   updatedAt: string;
+  payoutId: string | null;
 
   affiliate: {
     id: string;
@@ -368,8 +369,15 @@ export const commissionApi = {
 };
 
 export const payoutApi = {
-  requestPayout: () =>
-    api.post<ApiResponse<Payout>>("/payouts/request"),
+  requestPayout: (
+  commissionIds: string[]
+) =>
+  api.post<ApiResponse<Payout>>(
+    "/payouts/request",
+    {
+      commissionIds,
+    }
+  ),
 
   getMyPayouts: () =>
     api.get<ApiResponse<Payout[]>>("/payouts/my"),
