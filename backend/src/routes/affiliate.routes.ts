@@ -20,13 +20,6 @@ router.get(
 );
 
 router.get(
-  "/:id",
-  protect,
-  adminOnly,
-  getAffiliateDetailsController
-);
-
-router.get(
   "/top-affiliates",
   protect,
   adminOnly,
@@ -38,6 +31,13 @@ router.get(
   protect,
   adminOnly,
   getPlatformStatsController
+);
+
+router.get(
+  "/:id",
+  protect,
+  adminOnly,
+  getAffiliateDetailsController
 );
 
 
