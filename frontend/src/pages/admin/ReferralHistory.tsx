@@ -4,7 +4,7 @@ import {
     FaUsers,
     FaUser,
     FaSearch,
-    FaDollarSign,
+    // FaDollarSign,
     FaCheckCircle,
     FaClock,
     FaCalendarAlt,
@@ -63,15 +63,6 @@ const ReferralHistory = () => {
     useEffect(() => {
         fetchReferrals();
     }, [page, debouncedSearch]);
-
-    // Stats derived from current page
-    const stats = {
-        total: pagination.total,
-        active: referrals.filter((r) => r.status === "ACTIVE").length,
-        pending: referrals.filter((r) => r.status === "PENDING_PURCHASE").length,
-        totalRevenue: referrals.reduce((s, r) => s + r.totalPurchaseAmount, 0),
-        totalCommission: referrals.reduce((s, r) => s + r.totalCommission, 0),
-    };
 
     const getStatusColor = (status: string) =>
         status === "ACTIVE"

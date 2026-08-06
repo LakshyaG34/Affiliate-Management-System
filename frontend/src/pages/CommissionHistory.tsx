@@ -16,7 +16,7 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaPaperPlane,
-  FaCheck,
+  // FaCheck,
   FaHourglassHalf,
   FaChevronLeft,
   FaChevronRight,
