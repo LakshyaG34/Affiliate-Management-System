@@ -272,27 +272,6 @@ const Purchase = () => {
                 ))}
               </div>
             </div>
-
-            {/* Purchase Stats */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-4 md:p-6 text-white">
-              <h3 className="text-sm font-semibold text-white/90 mb-4">
-                Your Stats
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs text-blue-200">Total Purchases</p>
-                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
-                </div>
-                <div className="border-t border-white/20 pt-4">
-                  <p className="text-xs text-blue-200">Cashback Earned</p>
-                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
-                </div>
-                <div className="border-t border-white/20 pt-4">
-                  <p className="text-xs text-blue-200">Pending Rewards</p>
-                  <p className="text-xl md:text-2xl font-bold">₹0.00</p>
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
