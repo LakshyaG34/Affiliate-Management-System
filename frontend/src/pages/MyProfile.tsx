@@ -2,9 +2,17 @@ import { FaUser, FaEnvelope, FaShieldAlt, FaCopy, FaLink, FaShare, FaDollarSign,
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import useAuth from "@/hooks/useAuth";
+import { dashboardApi } from "@/services/apiService";
+import { useEffect, useState } from "react";
 
 const MyProfile = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState({
+    totalReferrals: 0,
+    totalEarnings: 0,
+    pendingCommission: 0,
+    joinedDate: "",
+  });
 
   if (!user) {
     return (
@@ -89,13 +97,24 @@ const MyProfile = () => {
     }
   };
 
-  // Stats data (mock - replace with actual data from API)
-  const stats = {
-    totalReferrals: 0,
-    totalEarnings: 0,
-    pendingCommission: 0,
-    joinedDate: user.createdAt || new Date().toISOString(),
-  };
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const res = await dashboardApi.getDashboard();
+
+        setStats({
+          totalReferrals: res.data.data.totalReferrals ?? 0,
+          totalEarnings: res.data.data.totalEarnings ?? 0,
+          pendingCommission: res.data.data.pendingCommission ?? 0,
+          joinedDate: user.createdAt,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadStats();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8">
@@ -170,11 +189,10 @@ const MyProfile = () => {
                     Role
                   </div>
                   <span
-                    className={`inline-block rounded-full px-3 md:px-4 py-1 md:py-1.5 text-xs md:text-sm font-semibold ${
-                      user.role === "ADMIN"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
+                    className={`inline-block rounded-full px-3 md:px-4 py-1 md:py-1.5 text-xs md:text-sm font-semibold ${user.role === "ADMIN"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-green-100 text-green-700"
+                      }`}
                   >
                     {user.role}
                   </span>
