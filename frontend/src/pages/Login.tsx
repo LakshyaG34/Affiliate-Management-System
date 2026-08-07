@@ -218,7 +218,7 @@ const Login = () => {
                 Remember me
               </span>
             </label>
-            <motion.button
+            {/* <motion.button
               type="button"
               onClick={() => navigate("/forgot-password")}
               className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline flex items-center gap-1"
@@ -227,7 +227,7 @@ const Login = () => {
             >
               Forgot password?
               <FaArrowRight className="w-3 h-3" />
-            </motion.button>
+            </motion.button> */}
           </motion.div>
 
           {/* Submit Button */}
