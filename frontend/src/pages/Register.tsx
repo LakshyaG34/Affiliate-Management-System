@@ -275,24 +275,28 @@ const Register = () => {
           </motion.div>
 
           {/* Referral Code Toggle */}
-          <motion.div variants={itemVariants} className="mb-4">
-            <motion.button
-              type="button"
-              onClick={() => setShowReferral(!showReferral)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline flex items-center gap-1 transition-colors"
-              whileHover={{ x: 3 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <FaGift className="w-3 h-3" />
-              {showReferral ? "Don't have a referral code?" : "Have a referral code?"}
-              <motion.span
-                animate={{ rotate: showReferral ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
+          {!referralCode && (
+            <motion.div variants={itemVariants} className="mb-4">
+              <motion.button
+                type="button"
+                onClick={() => setShowReferral(!showReferral)}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline flex items-center gap-1 transition-colors"
+                whileHover={{ x: 3 }}
+                transition={{ type: "spring", stiffness: 400 }}
               >
-                <FaArrowRight className="w-3 h-3" />
-              </motion.span>
-            </motion.button>
-          </motion.div>
+                <FaGift className="w-3 h-3" />
+                {showReferral
+                  ? "Don't have a referral code?"
+                  : "Have a referral code?"}
+                <motion.span
+                  animate={{ rotate: showReferral ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FaArrowRight className="w-3 h-3" />
+                </motion.span>
+              </motion.button>
+            </motion.div>
+          )}
 
           {/* Referral Code Field - Animated */}
           <AnimatePresence initial={false}>
@@ -308,9 +312,11 @@ const Register = () => {
                   Referral Code
                 </label>
                 <div
-                  className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "referralCode"
-                    ? "border-blue-400 ring-4 ring-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                  className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${referralCode
+                    ? "bg-gray-100 border-gray-200"
+                    : focusedField === "referralCode"
+                      ? "border-blue-400 ring-4 ring-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
                     }`}
                 >
                   <FaGift
@@ -320,9 +326,15 @@ const Register = () => {
                   <input
                     type="text"
                     {...register("referralCode")}
-                    onFocus={() => setFocusedField("referralCode")}
+                    readOnly={!!referralCode}
+                    onFocus={() => {
+                      if (!referralCode) setFocusedField("referralCode");
+                    }}
                     onBlur={() => setFocusedField(null)}
-                    className="w-full bg-transparent focus:outline-none text-sm placeholder-gray-400"
+                    className={`w-full bg-transparent text-sm placeholder-gray-400 ${referralCode
+                      ? "cursor-not-allowed text-gray-500"
+                      : "focus:outline-none"
+                      }`}
                     placeholder="Enter referral code"
                   />
                 </div>
