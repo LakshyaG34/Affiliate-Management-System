@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import Swal from "sweetalert2";
 import {
   FaUser,
   FaEnvelope,
@@ -27,8 +28,7 @@ const Register = () => {
   const [showReferral, setShowReferral] = useState(false);
   const [searchParams] = useSearchParams();
 
-  const referralCode =
-    searchParams.get("ref");
+  const referralCode = searchParams.get("ref");
 
   const {
     register,
@@ -42,10 +42,30 @@ const Register = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await authService.register(data);
-      alert("Registration Successful");
+
+      await Swal.fire({
+        title: "Registration Successful!",
+        text: "Your account has been created. Please login to continue.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl',
+        },
+      });
+
       navigate("/login");
     } catch (error: any) {
-      alert(error.response?.data?.message ?? "Something went wrong");
+      Swal.fire({
+        title: "Registration Failed",
+        text: error.response?.data?.message ?? "Something went wrong. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#EF4444",
+        customClass: {
+          popup: 'rounded-2xl',
+          confirmButton: 'px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors',
+        },
+      });
     }
   };
 
@@ -172,14 +192,16 @@ const Register = () => {
               Full Name
             </label>
             <div
-              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "name"
-                ? "border-blue-400 ring-4 ring-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-                }`}
+              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${
+                focusedField === "name"
+                  ? "border-blue-400 ring-4 ring-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
             >
               <FaUser
-                className={`w-4 h-4 mr-3 transition-colors ${focusedField === "name" ? "text-blue-500" : "text-gray-400"
-                  }`}
+                className={`w-4 h-4 mr-3 transition-colors ${
+                  focusedField === "name" ? "text-blue-500" : "text-gray-400"
+                }`}
               />
               <input
                 type="text"
@@ -208,14 +230,16 @@ const Register = () => {
               Email Address
             </label>
             <div
-              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "email"
-                ? "border-blue-400 ring-4 ring-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-                }`}
+              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${
+                focusedField === "email"
+                  ? "border-blue-400 ring-4 ring-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
             >
               <FaEnvelope
-                className={`w-4 h-4 mr-3 transition-colors ${focusedField === "email" ? "text-blue-500" : "text-gray-400"
-                  }`}
+                className={`w-4 h-4 mr-3 transition-colors ${
+                  focusedField === "email" ? "text-blue-500" : "text-gray-400"
+                }`}
               />
               <input
                 type="email"
@@ -244,14 +268,16 @@ const Register = () => {
               Password
             </label>
             <div
-              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${focusedField === "password"
-                ? "border-blue-400 ring-4 ring-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-                }`}
+              className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${
+                focusedField === "password"
+                  ? "border-blue-400 ring-4 ring-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
             >
               <FaLock
-                className={`w-4 h-4 mr-3 transition-colors ${focusedField === "password" ? "text-blue-500" : "text-gray-400"
-                  }`}
+                className={`w-4 h-4 mr-3 transition-colors ${
+                  focusedField === "password" ? "text-blue-500" : "text-gray-400"
+                }`}
               />
               <input
                 type="password"
@@ -312,16 +338,18 @@ const Register = () => {
                   Referral Code
                 </label>
                 <div
-                  className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${referralCode
-                    ? "bg-gray-100 border-gray-200"
-                    : focusedField === "referralCode"
+                  className={`flex items-center border rounded-xl px-4 py-3 transition-all duration-200 ${
+                    referralCode
+                      ? "bg-gray-100 border-gray-200"
+                      : focusedField === "referralCode"
                       ? "border-blue-400 ring-4 ring-blue-50"
                       : "border-gray-200 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   <FaGift
-                    className={`w-4 h-4 mr-3 transition-colors ${focusedField === "referralCode" ? "text-blue-500" : "text-gray-400"
-                      }`}
+                    className={`w-4 h-4 mr-3 transition-colors ${
+                      focusedField === "referralCode" ? "text-blue-500" : "text-gray-400"
+                    }`}
                   />
                   <input
                     type="text"
@@ -331,10 +359,11 @@ const Register = () => {
                       if (!referralCode) setFocusedField("referralCode");
                     }}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full bg-transparent text-sm placeholder-gray-400 ${referralCode
-                      ? "cursor-not-allowed text-gray-500"
-                      : "focus:outline-none"
-                      }`}
+                    className={`w-full bg-transparent text-sm placeholder-gray-400 ${
+                      referralCode
+                        ? "cursor-not-allowed text-gray-500"
+                        : "focus:outline-none"
+                    }`}
                     placeholder="Enter referral code"
                   />
                 </div>
@@ -356,8 +385,9 @@ const Register = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all duration-200 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+            className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all duration-200 ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
             type="submit"
             disabled={isSubmitting}
           >
